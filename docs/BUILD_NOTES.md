@@ -45,9 +45,10 @@ xcrun simctl io booted screenshot track.png
 ## 3. Still unverified
 
 - **Signing and the App Group on a device.** Every build so far was unsigned or for the simulator. Before the first TestFlight build:
-  - The App ID `com.badc0ffe.solitus` is registered (2026-11-20, through the App Store Connect API) with the App Groups and Data Protection (protected unless open) capabilities enabled.
-  - The App Group `group.com.badc0ffe.solitus` is not registered yet and is not assigned to the App ID. The public API cannot create App Groups, and an API key cannot do it through Xcode either: while the group is missing, a signed `xcodebuild` build with `-allowProvisioningUpdates` fails with "Authentication failed: Make sure a bearer token was provided". Create the group in the developer portal (Identifiers, App Groups) and assign it on the Solitus App ID. Until then `ship Solitus` fails.
-  - **26.0.1 (202611201542) was uploaded to TestFlight on 2026-11-20 without the App Group entitlement**, by archiving with `CODE_SIGN_ENTITLEMENTS` pointed at a copy of the entitlements file that omits the group. In that build the store is in the app's own container (the fallback in `ModelContainerFactory`). The first build signed with the group will start with an empty store; nothing in the app can create data yet, so nothing is lost.
+  - The App ID `com.badc0ffe.solitus` and the App Group `group.com.badc0ffe.solitus` are registered and linked (2026-11-20). A signed device build with `-allowProvisioningUpdates` and the API key succeeds and carries the group entitlement, so `ship Solitus` should work; a full `ship` run has not been done yet.
+  - An API key cannot create an App Group or attach one to an App ID. If either is missing, `xcodebuild` reports "Authentication failed: Make sure a bearer token was provided". Both steps are done by hand in the developer portal.
+  - **26.0.1 (202611201542) was uploaded to TestFlight on 2026-11-20 without the App Group entitlement**, before the group existed. That build keeps its store in the app's own container (the fallback in `ModelContainerFactory`). Builds from 26.0.2 on use the group container and start with an empty store; nothing in the app can create data yet, so nothing is lost.
+  - The App Group container has only been exercised in the simulator, not on a device.
   - The app icon is a placeholder (a three-section card, two sections filled) drawn by script so the first upload is accepted. Replace it with a designed icon.
   - The build number in the project is the placeholder `202611200000`; `ship` overrides it with a real timestamp.
 - **`ReminderScheduler`.** It compiles, but nothing calls it and it has no tests. Only `ReminderPlanner` is tested. Check it in phase 6.
