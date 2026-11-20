@@ -1,0 +1,26 @@
+# Personal / agent files
+prompts/
+.claude/
+CLAUDE.local.md
+solitus-handoff.zip
+
+# macOS
+.DS_Store
+
+# Xcode user-specific data
+*.xcuserstate
+xcuserdata/
+DerivedData/
+build/
+*.xcresult
+
+# Swift Package Manager (no packages are used; ignore strays)
+.build/
+.swiftpm/
+
+# Apple keys / signing
+*.p8
+*.p12
+AuthKey_*.p8
+*.cer
+*.mobileprovision

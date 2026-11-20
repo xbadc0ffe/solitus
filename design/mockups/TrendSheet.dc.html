@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Solitus trend graph sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0}
+a{color:#FFFFFF}a:hover{color:#FFFFFF}
+button{cursor:pointer}
+</style>
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #08090B; color: #FFFFFF; font-family: Inter, system-ui, sans-serif; overflow: hidden">
+
+<div aria-hidden="true" style="position: absolute; left: -160px; top: -140px; width: 520px; height: 520px; background: radial-gradient(circle, rgba(140,158,190,0.30) 0%, rgba(140,158,190,0) 66%)"></div>
+<div aria-hidden="true" style="position: absolute; left: 120px; top: 300px; width: 460px; height: 460px; background: radial-gradient(circle, rgba(150,152,172,0.16) 0%, rgba(150,152,172,0) 66%)"></div>
+<div aria-hidden="true" style="position: absolute; left: -80px; top: 190px; width: 620px; height: 46px; transform: rotate(-24deg); background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0) 100%)"></div>
+
+<div aria-hidden="true" style="position: absolute; left: 16px; right: 16px; top: 20px; display: flex; flex-direction: column; gap: 15px">
+<div style="display: flex; align-items: center; height: 44px; padding: 0 4px; font-size: 19px; font-weight: 600">Trends</div>
+<div style="height: 330px; border-radius: 20px; background: {{glass}}; border: 1px solid rgba(255,255,255,0.12); box-shadow: {{slab}}"></div>
+<div style="height: 280px; border-radius: 20px; background: {{glass}}; border: 1px solid rgba(255,255,255,0.12); box-shadow: {{slab}}"></div>
+<div style="height: 58px; border-radius: 18px; background: {{glass}}; border: 1px solid rgba(255,255,255,0.12); box-shadow: {{slab}}"></div>
+</div>
+
+<a href="Trends.dc.html" aria-label="Close and go back to Trends" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,0.50)"></a>
+
+<div role="dialog" aria-label="Running average" style="position: absolute; left: 0; right: 0; top: 64px; bottom: 0; display: flex; flex-direction: column; gap: 12px; padding: 8px 16px 0; box-sizing: border-box; overflow: hidden; border-radius: 28px 28px 0 0; background: {{sheet}}; -webkit-backdrop-filter: blur(40px) saturate(140%); backdrop-filter: blur(40px) saturate(140%); border-top: 1px solid rgba(255,255,255,0.30); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 -24px 40px rgba(0,0,0,0.60)">
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 200px; background: {{shine}}"></span>
+<span aria-hidden="true" style="position: relative; align-self: center; width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.45)"></span>
+
+<div style="position: relative; display: flex; align-items: center; justify-content: space-between; height: 44px">
+<h1 style="margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em">Running average</h1>
+<a href="Trends.dc.html" style="display: flex; align-items: center; height: 44px; font-size: 15px; font-weight: 700; text-decoration: none">Done</a>
+</div>
+
+<div role="group" aria-label="Window" style="position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 3px; border-radius: 14px; background: rgba(0,0,0,0.30); box-shadow: inset 0 1px 3px rgba(0,0,0,0.60), inset 0 -1px 0 rgba(255,255,255,0.08)">
+<button type="button" onClick="{{set30}}" aria-pressed="{{on30}}" style="height: 38px; border: 0; border-radius: 11px; font: inherit; font-size: 13px; font-weight: 600; background: {{bg30}}; color: {{fg30}}; box-shadow: {{sh30}}">30 days</button>
+<button type="button" onClick="{{set90}}" aria-pressed="{{on90}}" style="height: 38px; border: 0; border-radius: 11px; font: inherit; font-size: 13px; font-weight: 600; background: {{bg90}}; color: {{fg90}}; box-shadow: {{sh90}}">90 days</button>
+</div>
+
+<div style="position: relative; display: flex">
+<div aria-hidden="true" style="position: relative; flex-shrink: 0; width: 34px; height: 200px; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.74)">
+<span style="position: absolute; left: 0; top: 0">100%</span>
+<span style="position: absolute; left: 0; top: 84px">50%</span>
+<span style="position: absolute; left: 0; top: 168px">0%</span>
+</div>
+<div tabindex="0" role="group" aria-label="Scrollable chart, newest on the right" style="flex-grow: 1; min-width: 0; overflow-x: auto; direction: rtl">
+<div style="position: relative; direction: ltr; width: 972px; height: 202px">
+<svg role="img" aria-label="{{chartLabel}}" width="972" height="180" viewBox="0 0 972 180" fill="none" style="display: block">
+<path d="M0 6h972M0 90h972M0 174h972" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+<path d="{{d4}}" stroke="#D9B8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 4 2 4"/>
+<path d="{{d3}}" stroke="#8DBBFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="6 5"/>
+<path d="{{d2}}" stroke="#C9CFD9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 5"/>
+<path d="{{d1}}" stroke="#FFA42C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="{{d0}}" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<sc-for list="{{ticks}}" as="tk" hint-placeholder-count="6">
+<span style="position: absolute; top: 184px; left: {{tk.left}}; transform: {{tk.tf}}; white-space: nowrap; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.74)">{{tk.label}}</span>
+</sc-for>
+</div>
+</div>
+</div>
+
+<h2 style="position: relative; margin: 2px 0 0; padding: 0 4px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.74)">Lines</h2>
+<div style="position: relative; display: flex; flex-direction: column">
+<sc-for list="{{lines}}" as="l" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 4px; border-top: 1px solid rgba(255,255,255,0.10)">
+<svg aria-hidden="true" width="24" height="6" viewBox="0 0 24 6" fill="none"><path d="M1 3h22" stroke="{{l.color}}" stroke-width="{{l.w}}" stroke-linecap="round" stroke-dasharray="{{l.dash}}"/></svg>
+<span style="flex-grow: 1; font-size: 15px; font-weight: 500">{{l.name}}</span>
+<span style="font-size: 15px; font-weight: 600">{{l.value}}</span>
+<button type="button" role="switch" aria-checked="{{l.on}}" aria-label="{{l.name}}" onClick="{{l.toggle}}" style="position: relative; flex-shrink: 0; width: 58px; height: 34px; padding: 0; border-radius: 17px; border: 1px solid rgba(255,255,255,0.14); background: {{l.bg}}; box-shadow: inset 0 1px 3px rgba(0,0,0,0.60), inset 0 -1px 0 rgba(255,255,255,0.08)"><span aria-hidden="true" style="position: absolute; left: 3px; top: 3px; width: 26px; height: 26px; border-radius: 13px; transform: translateX({{l.x}}); background: linear-gradient(160deg, #FFFFFF 0%, #C9D2E0 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.90), 0 2px 4px rgba(0,0,0,0.60)"></span></button>
+</div>
+</sc-for>
+</div>
+<button type="button" style="position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.14); background: {{lit}}; box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 2px 4px rgba(0,0,0,0.50); color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 600"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 12h12M12 6v12"/></svg>Add a task</button>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"effects":{"editor":"boolean","default":true},"glassTint":{"editor":"color","default":"#DCE6F5","options":["#DCE6F5","#FFFFFF","#BFE6DA","#F2D3AE"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { mode: 30, on: [true, true, true, true, false] };
+}
+renderVals() {
+var self = this;
+var fx = this.props.effects ?? true;
+var st = this.state || {};
+var hex = String(this.props.glassTint ?? '#DCE6F5').replace('#', '');
+if (hex.length === 3) { hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]; }
+var n = parseInt(hex, 16);
+if (isNaN(n)) { n = 0xDCE6F5; }
+var t = ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+var glass = 'linear-gradient(160deg, rgba(' + t + ',0.11) 0%, rgba(' + t + ',0.03) 100%)';
+var lit = 'linear-gradient(180deg, rgba(' + t + ',0.30) 0%, rgba(' + t + ',0.14) 100%)';
+var sheet = 'linear-gradient(180deg, rgba(' + t + ',0.12) 0%, rgba(' + t + ',0.05) 100%)';
+var slab = 'inset 0 1px 0 rgba(255,255,255,0.18), 0 10px 18px -12px rgba(0,0,0,0.75)';
+var shine = fx
+? 'radial-gradient(260px 120px at 14% 0%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 72%)'
+: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 50%)';
+var raised = 'inset 0 1px 0 rgba(255,255,255,0.45), 0 2px 4px rgba(0,0,0,0.50)';
+var mode = st.mode === 90 ? 90 : 30;
+var on = st.on || [true, true, true, true, false];
+function series(seedV, base, trend, target) {
+var sd = seedV;
+var arr = [];
+for (var i = 0; i < 360; i++) {
+sd = (sd * 1664525 + 1013904223) % 4294967296;
+arr.push(base + trend * (i / 360) + 0.07 * Math.sin(i / 17 + seedV) + (sd / 4294967296 - 0.5) * 0.5);
+}
+var s30 = 0;
+for (var q = 330; q < 360; q++) { s30 += arr[q]; }
+var delta = target / 100 - s30 / 30;
+return arr.map(function (v) { return v + delta; });
+}
+function rolling(arr, W) {
+var out = [];
+for (var i = arr.length - 3 * W; i < arr.length; i++) {
+var s = 0;
+for (var j = i - W + 1; j <= i; j++) { s += arr[j]; }
+out.push(Math.max(0, Math.min(1, s / W)));
+}
+return out;
+}
+var pitch = 324 / mode;
+function pathOf(vals) {
+return vals.map(function (v, i) { return (i ? 'L' : 'M') + ((i + 0.5) * pitch).toFixed(1) + ' ' + (6 + (1 - v) * 168).toFixed(1); }).join('');
+}
+var defs = [
+{ name: 'Total average', color: '#FFFFFF', w: '3', dash: 'none', data: series(11, 0.50, 0.34, 75) },
+{ name: 'Best 5 average', color: '#FFA42C', w: '2', dash: 'none', data: series(23, 0.70, 0.14, 83) },
+{ name: 'Worst 5 average', color: '#C9CFD9', w: '2', dash: '1 5', data: series(37, 0.62, 0.06, 67) },
+{ name: 'Medication', color: '#8DBBFF', w: '2', dash: '6 5', data: series(41, 0.66, 0.16, 82) },
+{ name: 'Gym', color: '#D9B8FF', w: '2', dash: '10 4 2 4', data: series(53, 0.74, 0.02, 75) }
+];
+var paths = [];
+var lines = defs.map(function (d, i) {
+var r = rolling(d.data, mode);
+paths.push(on[i] ? pathOf(r) : 'M0 0');
+return {
+name: d.name, color: d.color, w: d.w, dash: d.dash,
+value: Math.round(r[r.length - 1] * 100) + '%',
+on: on[i] ? 'true' : 'false',
+bg: on[i] ? 'rgba(' + t + ',0.40)' : 'rgba(0,0,0,0.30)',
+x: on[i] ? '24px' : '0px',
+toggle: function () { var next = on.slice(); next[i] = !next[i]; self.setState({ on: next }); }
+};
+});
+var count = 3 * mode;
+var mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var ticks = [];
+var stepDays = mode === 30 ? 5 : 15;
+for (var ti = count - 1; ti >= 0; ti -= stepDays) {
+var dt = new Date(2026, 10, 20 - (count - 1 - ti));
+var isLast = ti === count - 1;
+ticks.push({
+label: isLast ? 'Today' : mNames[dt.getMonth()] + ' ' + dt.getDate(),
+left: isLast ? '972px' : ((ti + 0.5) * pitch).toFixed(1) + 'px',
+tf: isLast ? 'translateX(-100%)' : 'translateX(-50%)'
+});
+}
+var is30 = mode === 30;
+return {
+glass: glass, lit: lit, sheet: sheet, slab: slab, shine: shine,
+lines: lines, ticks: ticks,
+d0: paths[0], d1: paths[1], d2: paths[2], d3: paths[3], d4: paths[4],
+chartLabel: 'Running ' + mode + '-day average for the last ' + count + ' days, one line per switched-on entry below.',
+set30: function () { self.setState({ mode: 30 }); },
+set90: function () { self.setState({ mode: 90 }); },
+on30: is30 ? 'true' : 'false', on90: is30 ? 'false' : 'true',
+bg30: is30 ? lit : 'transparent', bg90: is30 ? 'transparent' : lit,
+fg30: is30 ? '#FFFFFF' : 'rgba(255,255,255,0.74)', fg90: is30 ? 'rgba(255,255,255,0.74)' : '#FFFFFF',
+sh30: is30 ? raised : 'none', sh90: is30 ? 'none' : raised
+};
+}
+}
+</script>
+</body>
+</html>

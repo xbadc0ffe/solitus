@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Solitus Track</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+body{margin:0}
+a{color:#FFFFFF}a:hover{color:#FFFFFF}
+</style>
+</helmet>
+<div onMouseMove="{{move}}" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #08090B; color: #FFFFFF; font-family: Inter, system-ui, sans-serif; overflow: hidden">
+
+<div aria-hidden="true" style="position: absolute; left: -160px; top: -140px; width: 520px; height: 520px; background: radial-gradient(circle, rgba(140,158,190,0.30) 0%, rgba(140,158,190,0) 66%)"></div>
+<div aria-hidden="true" style="position: absolute; left: 120px; top: 300px; width: 460px; height: 460px; background: radial-gradient(circle, rgba(150,152,172,0.16) 0%, rgba(150,152,172,0) 66%)"></div>
+<div aria-hidden="true" style="position: absolute; left: -180px; top: 560px; width: 480px; height: 480px; background: radial-gradient(circle, rgba(112,132,162,0.20) 0%, rgba(112,132,162,0) 66%)"></div>
+<div aria-hidden="true" style="position: absolute; left: -80px; top: 190px; width: 620px; height: 46px; transform: rotate(-24deg); background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0) 100%)"></div>
+<div aria-hidden="true" style="position: absolute; left: -120px; top: 520px; width: 680px; height: 70px; transform: rotate(-24deg); background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%)"></div>
+
+<div style="position: relative; display: flex; flex-direction: column; gap: 14px; padding: 20px 16px 0">
+
+<header style="display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 4px">
+<span style="font-size: 19px; font-weight: 600; letter-spacing: -0.01em">Fri, Nov 20</span>
+<span style="font-size: 19px; font-weight: 600; letter-spacing: -0.01em">11:17</span>
+</header>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 12px; perspective: 900px">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="10">
+<a href="Detail.dc.html" style="position: relative; display: block; height: 108px; box-sizing: border-box; overflow: hidden; border-radius: 20px; text-decoration: none; color: #FFFFFF; opacity: {{c.opacity}}; transform: {{tilt}}; background: {{glass}}; -webkit-backdrop-filter: blur(18px) saturate(130%); backdrop-filter: blur(18px) saturate(130%); border: 1px solid {{c.edge}}; box-shadow: {{slab}}">
+<span aria-hidden="true" style="position: absolute; left: 0; top: 0; bottom: 0; width: {{c.fillW}}; background: {{c.fill}}; border-right: 1px solid {{c.fillEdge}}"></span>
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: {{c.seams}}"></span>
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: {{shine}}"></span>
+<svg aria-hidden="true" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; right: -6px; bottom: -8px"><path d="{{c.icon}}"/></svg>
+<span style="position: absolute; left: 14px; right: 14px; top: 12px; display: flex; flex-direction: column; gap: 1px">
+<span style="font-size: {{c.titleSize}}; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden">{{c.title}}</span>
+<span style="font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.74)">{{c.period}}</span>
+</span>
+<span style="position: absolute; left: 14px; right: 14px; bottom: 10px; display: flex; align-items: baseline; gap: 6px">
+<span style="font-size: 22px; font-weight: 600; letter-spacing: -0.02em">{{c.status}}</span>
+<span style="font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.74)">{{c.caption}}</span>
+</span>
+</a>
+</sc-for>
+</div>
+</div>
+
+<nav aria-label="Main" style="position: absolute; left: 16px; right: 16px; bottom: 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: 62px; overflow: hidden; border-radius: 31px; background: {{glass}}; -webkit-backdrop-filter: blur(22px) saturate(130%); backdrop-filter: blur(22px) saturate(130%); border: 1px solid rgba(255,255,255,0.12); box-shadow: {{slab}}">
+<span aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: {{shine}}"></span>
+<a href="Main.dc.html" aria-current="page" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 600; color: #FFFFFF; text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8 12.2l2.8 2.8L16 9.5"/></svg>Track</a>
+<a href="Trends.dc.html" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.74); text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l5-6 4 3 7-8"/></svg>Trends</a>
+<a href="EditTask.dc.html" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.74); text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><path d="M16.5 14v5M14 16.5h5"/></svg>Tasks</a>
+<a href="Main.dc.html" style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.74); text-decoration: none"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6.4"/><circle cx="12" cy="12" r="2.4"/><path d="M12 2.6v3M12 18.4v3M2.6 12h3M18.4 12h3M5.4 5.4l2.1 2.1M16.5 16.5l2.1 2.1M5.4 18.6l2.1-2.1M16.5 7.5l2.1-2.1"/></svg>Settings</a>
+</nav>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"effects":{"editor":"boolean","default":true},"glassTint":{"editor":"color","default":"#DCE6F5","options":["#DCE6F5","#FFFFFF","#BFE6DA","#F2D3AE"]},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = {};
+}
+renderVals() {
+var self = this;
+var fx = this.props.effects ?? true;
+var st = this.state || {};
+var tx = st.tx == null ? -0.35 : st.tx;
+var ty = st.ty == null ? -0.4 : st.ty;
+if (!fx) { tx = 0; ty = 0; }
+var hex = String(this.props.glassTint ?? '#DCE6F5').replace('#', '');
+if (hex.length === 3) { hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]; }
+var n = parseInt(hex, 16);
+if (isNaN(n)) { n = 0xDCE6F5; }
+var t = ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255);
+var glass = 'linear-gradient(160deg, rgba(' + t + ',0.11) 0%, rgba(' + t + ',0.03) 100%)';
+var slab = fx
+? 'inset 1px 1px 0 rgba(255,255,255,0.42), inset -1px -1px 0 rgba(0,0,0,0.40), inset 0 0 22px rgba(255,255,255,0.05), 0 1px 0 rgba(196,210,232,0.34), 0 2px 0 rgba(156,170,194,0.28), 0 3px 0 rgba(116,130,154,0.24), 0 4px 0 rgba(76,88,108,0.24), 0 5px 0 rgba(30,36,48,0.40), ' + (-tx * 4).toFixed(1) + 'px ' + (18 - ty * 3).toFixed(1) + 'px 26px -6px rgba(0,0,0,0.88)'
+: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 10px 18px -12px rgba(0,0,0,0.75)';
+var tilt = fx ? 'rotateX(' + (-ty * 1.3).toFixed(2) + 'deg) rotateY(' + (tx * 1.3).toFixed(2) + 'deg)' : 'none';
+var shine = fx
+? 'radial-gradient(130px 84px at ' + (12 + tx * 10).toFixed(1) + '% ' + (2 + ty * 8).toFixed(1) + '%, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0) 72%), linear-gradient(125deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 30%)'
+: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 50%)';
+var I = {
+drink: 'M7 4h10l-1 16H8L7 4zM7.5 10h9',
+pill: 'M6 9h12a3 3 0 0 1 0 6H6a3 3 0 0 1 0-6zM12 9v6',
+gym: 'M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12',
+walk: 'M3 12h4l3-8 4 16 3-8h4',
+book: 'M12 7v12M12 7a3 3 0 0 0-3-2H4v12h5a3 3 0 0 1 3 2a3 3 0 0 1 3-2h5V5h-5a3 3 0 0 0-3 2',
+pen: 'M4 20l4-1L19 8l-3-3L5 16l-1 4z',
+ban: 'M12 4a8 8 0 1 0 0 16a8 8 0 0 0 0-16zM6.5 6.5l11 11',
+figure: 'M12 5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3zM5 9h14M12 9v6M12 15l-4 6M12 15l4 6',
+coin: 'M12 4a8 8 0 1 0 0 16a8 8 0 0 0 0-16zM12 8v8M9.5 10h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4',
+drop: 'M12 3.5c3.5 4.2 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2-5.8 5.500-10z'
+};
+var raw = [
+{ title: 'Drinks', period: 'Daily', icon: I.drink, done: 1, of: 1, status: '2', caption: 'today', kind: 'alert' },
+{ title: 'Medication', period: 'Daily', icon: I.pill, done: 1, of: 3, status: '1/3', caption: 'today' },
+{ title: 'Gym', period: 'Weekly', icon: I.gym, done: 2, of: 4, status: '2/4', caption: 'this week' },
+{ title: 'Walk', period: 'Daily', icon: I.walk, done: 0, of: 1, status: '0/1', caption: 'today' },
+{ title: 'Read', period: 'Daily', icon: I.book, done: 0, of: 1, status: '0/1', caption: 'today' },
+{ title: 'Budget review', period: 'Monthly', icon: I.coin, done: 0, of: 1, status: '0/1', caption: 'this month' },
+{ title: 'Journal', period: 'Daily', icon: I.pen, done: 0, of: 1, status: '1', caption: 'today, no limit' },
+{ title: 'Tobacco', period: 'Daily', icon: I.ban, done: 1, of: 1, status: '0', caption: 'clear today', kind: 'quiet' },
+{ title: 'Stretch', period: 'Daily', icon: I.figure, done: 1, of: 1, status: 'Done', caption: 'today', kind: 'done' },
+{ title: 'Water', period: 'Daily', icon: I.drop, done: 8, of: 8, status: 'Done', caption: '8 of 8', kind: 'done' }
+];
+var W = 171;
+var cards = raw.map(function (r) {
+var size = Math.max(12, Math.min(17, Math.floor(143 / (r.title.length * 0.58))));
+var pct = Math.round(100 * r.done / r.of);
+var partial = pct > 0 && pct < 100;
+var fill = 'linear-gradient(180deg, rgba(' + t + ',0.24) 0%, rgba(' + t + ',0.11) 100%)';
+var edge = 'rgba(255,255,255,0.12)';
+if (r.kind === 'alert') {
+fill = 'linear-gradient(180deg, rgba(226,92,72,0.34) 0%, rgba(226,92,72,0.16) 100%)';
+edge = 'rgba(240,128,108,0.65)';
+}
+if (r.kind === 'quiet') {
+fill = 'linear-gradient(180deg, rgba(' + t + ',0.10) 0%, rgba(' + t + ',0.04) 100%)';
+}
+var seams = [];
+if (r.of > 1 && r.of <= 4) {
+for (var i = 1; i < r.of; i++) {
+seams.push('linear-gradient(90deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0.10) 5px, rgba(0,0,0,0.50) 5px, rgba(0,0,0,0.50) 6px, rgba(255,255,255,0.36) 6px, rgba(255,255,255,0.36) 7px, rgba(255,255,255,0.06) 7px, rgba(255,255,255,0) 12px) ' + (W * i / r.of - 6).toFixed(1) + 'px 0px / 12px 100% no-repeat');
+}
+}
+return {
+title: r.title, titleSize: size + 'px', period: r.period, icon: r.icon,
+status: r.status, caption: r.caption,
+fillW: pct + '%', fill: fill,
+fillEdge: partial ? 'rgba(255,255,255,0.16)' : 'transparent',
+seams: seams.length ? seams.join(', ') : 'none',
+edge: edge,
+opacity: r.kind === 'done' ? '0.55' : (r.kind === 'quiet' ? '0.80' : '1')
+};
+});
+return {
+glass: glass, slab: slab, tilt: tilt, shine: shine, cards: cards,
+move: function (e) {
+var now = Date.now();
+if (self._last && now - self._last < 40) { return; }
+self._last = now;
+var r = e.currentTarget.getBoundingClientRect();
+self.setState({ tx: ((e.clientX - r.left) / r.width) * 2 - 1, ty: ((e.clientY - r.top) / r.height) * 2 - 1 });
+}
+};
+}
+}
+</script>
+</body>
+</html>
