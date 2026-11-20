@@ -42,7 +42,7 @@ To launch with sample tasks in a debug build, pass the launch argument `-seedSam
 | `Solitus/DesignSystem` | Theme, surfaces, fill effects, motion, shared components (prefix `SL`) |
 | `Solitus/Features/Tasks` | Models, services and screens of the Tasks area |
 | `SolitusTests` | Unit tests for every calculation rule |
-| `docs` | [DESIGN.md](docs/DESIGN.md) is the specification. [BUILD_NOTES.md](docs/BUILD_NOTES.md) records the state of the first build. |
+| `docs` | [DESIGN.md](docs/DESIGN.md) is the specification. [BUILD_NOTES.md](docs/BUILD_NOTES.md) records the verified build state and the commands that work. |
 | `design/mockups` | Reference mockups (not runnable) |
 
 ## Licence

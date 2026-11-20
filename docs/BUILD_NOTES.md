@@ -1,48 +1,64 @@
-# Build notes: first session (Windows PC, 2026-11-20)
+# Build notes
 
-**Nothing in this repository has been compiled or run.** It was written on a Windows PC with no Swift toolchain. Expect compile errors. The first Mac session's only job is to make the project build and the tests pass, then report what had to change.
+State after the first Mac session (Mac mini, 2026-11-20). The code was written on a Windows PC without a Swift toolchain; this session compiled it, ran the tests and launched the app. **No source file had to change.**
 
-Delete or rewrite this file once the project builds and the tests pass.
+## 1. Verified state
 
-## 1. First steps on the Mac
+| Item | Value |
+|---|---|
+| Xcode | 27.1 (27A9275) |
+| iOS SDK | 27.1 |
+| Deployment target | iOS 26.4 (unchanged) |
+| Simulator | iPhone 17, iOS 27.0 |
+| App build | Succeeds with no errors and no compiler warnings |
+| Tests | 135 tests in 12 suites, all pass |
+
+Verified by running, not only by compiling:
+
+- `xcodebuild -list` reads the hand-made project file and shows targets `Solitus` and `SolitusTests` and the scheme `Solitus`.
+- Swift 6 with MainActor default isolation accepts the `nonisolated` pattern on structs, enums, protocols and extensions. The fallback of deleting the keyword was not needed.
+- The SwiftData container opens in the App Group container on the simulator. `ModelConfiguration` and `ModelContainer` argument labels are right.
+- `-seedSampleData` installs 10 tasks, 647 entries and 3 slots. Every entry has its task, and no task has two entries for one day, so the `@Relationship` inverses work as written.
+- The shell matches the design: dark ground with soft light fields and two diagonal bands, the date ("Fri, Nov 20") at top left and the time at top right of Track, and a floating pill tab bar with Track, Trends, Tasks and Settings.
+- All 14 SF Symbol names used for tabs and sample tasks exist in the installed symbol set.
+
+## 2. Commands
 
 Run from the repository root.
 
-1. Check that Xcode can read the project and sees both targets and the scheme:
+```
+xcodebuild -list -project Solitus.xcodeproj
+xcodebuild build -scheme Solitus -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
+xcodebuild test -scheme Solitus -destination 'platform=iOS Simulator,name=iPhone 17'
+```
 
-   ```
-   xcodebuild -list -project Solitus.xcodeproj
-   ```
+If the test run hangs with "Simulator device failed to launch com.badc0ffe.solitus" on "Clone 1 of iPhone 17", stop it and add `-parallel-testing-enabled NO`. This happened once, on the very first run, and not again; it is a simulator clone problem, not a fault in the project.
 
-   Expected: targets `Solitus` and `SolitusTests`, scheme `Solitus`. If this fails, the hand-made project file is the problem; see section 3.1.
+To launch in a booted simulator with the sample tasks (nothing shows them yet; the Track grid is phase 2):
 
-2. Compile the app without signing:
+```
+xcrun simctl install booted <DerivedData>/Build/Products/Debug-iphonesimulator/Solitus.app
+xcrun simctl launch booted com.badc0ffe.solitus -seedSampleData
+xcrun simctl io booted screenshot track.png
+```
 
-   ```
-   xcodebuild build -scheme Solitus -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
-   ```
+## 3. Still unverified
 
-3. Find a simulator name, then build and run the tests:
+- **Signing and the App Group on a device.** Every build so far was unsigned or for the simulator. Before the first TestFlight build:
+  - Register the App ID `com.badc0ffe.solitus` and the App Group `group.com.badc0ffe.solitus` in the developer account, and create the app record in App Store Connect.
+  - Add an app icon. `AppIcon.appiconset` has an empty 1024-point slot and no image; the upload is rejected without one.
+  - The build number. `CURRENT_PROJECT_VERSION` is the placeholder `202611200000` on the app target (and `1` on the test target). The `ship` script sets a real timestamp.
+- **`ReminderScheduler`.** It compiles, but nothing calls it and it has no tests. Only `ReminderPlanner` is tested. Check it in phase 6.
+- **Look on a device.** Only the iPhone 17 simulator has been seen.
+  - No backdrop blur. The mockups blur what is behind each surface; `FlatSurface` draws only the tinted gradient, border, highlight and shadow.
+  - The flat shadow is approximated with a blurred, inset copy of the shape, because SwiftUI has no negative shadow spread.
+  - `SLBackground` scales the mockup's 390 by 844 layout to the screen. It has not been seen on an iPad.
+- **Surfaces other than the tab bar.** No screen draws a card yet, so `FlatSurface` roles other than `bar`, and `SweepFill`, have compiled but have not been seen.
+- **Schema migration.** `TasksSchemaV1` lists top-level model classes rather than nesting them. That works for version 1. When a second version is needed, the old model classes must be copied into `TasksSchemaV1` as frozen nested types.
 
-   ```
-   xcrun simctl list devices available
-   xcodebuild test -scheme Solitus -destination 'platform=iOS Simulator,name=iPhone 17'
-   ```
+## 4. What exists
 
-4. Fix errors in this order: project file, then `Core`, then `Features/Tasks/Models`, then `Features/Tasks/Services`, then `DesignSystem`, then `App`, then the tests. Later layers depend on earlier ones.
-
-5. Launch in the simulator and check the shell: a dark background with soft light fields, the date and time at the top of Track, and a floating four-tab bar. Add the launch argument `-seedSampleData` to install the ten sample tasks (nothing shows them yet; the Track grid is phase 2).
-
-6. Before the first device or TestFlight build:
-   - Register the App Group `group.com.badc0ffe.solitus` and the App ID `com.badc0ffe.solitus` in the developer account (automatic signing should offer to do this).
-   - Add an app icon. `AppIcon.appiconset` has an empty 1024-point slot and no image.
-   - Set `CURRENT_PROJECT_VERSION` to a real `yyyyMMddHHmm` timestamp. It is the placeholder `202611200000`.
-
-## 2. What was created
-
-**Repository.** `LICENSE` (MIT), `README.md`, `.gitignore`, `.gitattributes`, `CLAUDE.md`, `docs/DESIGN.md`, `docs/KICKOFF.md`, `design/mockups/`.
-
-**Xcode project.** `Solitus.xcodeproj`, made by copying Pull State's `project.pbxproj` and shared scheme and renaming. Two targets (`Solitus`, `SolitusTests`), file-system-synchronised groups for the `Solitus` and `SolitusTests` folders, bundle ID `com.badc0ffe.solitus`, version 26.0.1, iPhone and iPad, Swift 6 with MainActor default isolation, deployment target iOS 26.4, the same development team as Pull State. `Solitus/Solitus.entitlements` holds the App Group. `Solitus/PrivacyInfo.xcprivacy` declares no tracking and no collected data.
+**Xcode project.** `Solitus.xcodeproj`, made by copying Pull State's `project.pbxproj` and shared scheme and renaming. Two targets, file-system-synchronised groups for the `Solitus` and `SolitusTests` folders, bundle ID `com.badc0ffe.solitus`, version 26.0.1, iPhone and iPad, Swift 6 with MainActor default isolation, `SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY` on (a file must import every module whose members it uses), team `ZWS3TP3W3Z`. `Solitus/Solitus.entitlements` holds the App Group. `Solitus/PrivacyInfo.xcprivacy` declares no tracking and no collected data.
 
 **Core** (`Solitus/Core`)
 
@@ -85,61 +101,9 @@ Components: `SLBackground` and `SLTabBar` only. `SLSegmented`, `SLStepper`, `SLT
 
 **Screens.** `TrackView` shows the date and time header and nothing else. `TrendsView`, `TaskListView` and `SettingsView` show a title. `Features/Tasks/Detail` and `Features/Tasks/Edit` have no files yet, so those folders do not exist in git.
 
-**Tests** (`SolitusTests`): 13 files (12 suites and a helper file), 135 test functions, covering every service above plus the models. Expected values were worked out by hand, not by running the code.
+**Tests** (`SolitusTests`): 13 files (12 suites and a helper file), 135 test functions, covering every service above plus the models. All pass (section 1).
 
-## 3. Things that may not compile or may not work
-
-Listed with the most likely first.
-
-### 3.1 The project file
-
-`project.pbxproj` was produced by text substitution on Pull State's file, not by Xcode. If Xcode rejects it, the quickest fix is to create a new iOS app project named Solitus with a unit-test target in Xcode 26, then copy the build settings below into it and point it at the existing `Solitus` and `SolitusTests` folders:
-
-`SWIFT_VERSION = 6.0`, `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, `SWIFT_APPROACHABLE_CONCURRENCY = YES`, `SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES`, `IPHONEOS_DEPLOYMENT_TARGET = 26.4`, `TARGETED_DEVICE_FAMILY = "1,2"`, `CODE_SIGN_ENTITLEMENTS = Solitus/Solitus.entitlements`, `MARKETING_VERSION = 26.0.1`, `GENERATE_INFOPLIST_FILE = YES`.
-
-Two settings were removed from the Pull State original because Solitus does not need them: `ENABLE_APP_SANDBOX` and `ENABLE_USER_SELECTED_FILES`. The camera and photo usage strings were removed too.
-
-The deployment target is 26.4 because DESIGN.md says so. Pull State's project file says 26.0. If the installed SDK is older than 26.4, lower it.
-
-### 3.2 `nonisolated` on types
-
-The targets use MainActor default isolation. Every pure value type and calculation service is declared `nonisolated` (for example `nonisolated struct DayKey`, `nonisolated protocol AppClock`, `nonisolated extension AppClock`, `nonisolated enum TasksSchemaV1`). Pull State does not use this pattern, so there is no proven example to copy from. Likely trouble:
-
-- If the compiler rejects `nonisolated` on a protocol or an extension, remove it from that declaration and mark the members instead.
-- If a `nonisolated` service cannot call something, the callee is probably MainActor by default and needs `nonisolated` too. Everything the services touch should already be marked.
-- If this becomes a fight, the fallback is to delete every `nonisolated` keyword. Everything then runs on the main actor, which is correct for this app today. Only the "values can cross actors" property is lost.
-
-### 3.3 SwiftData
-
-- **Versioned schema.** `TasksSchemaV1` lists top-level model classes (`TaskItem.self` and so on) rather than nesting the models inside the schema enum. That works for version 1. When a second version is needed, the old model classes must be copied into `TasksSchemaV1` as frozen nested types.
-- **`ModelContainerFactory`.** Uses `ModelConfiguration(schema:isStoredInMemoryOnly:groupContainer:cloudKitDatabase:)` and `ModelContainer(for:migrationPlan:configurations:)`. Check the argument labels. If the App Group container is not available it falls back to the app's own container, then to memory.
-- **`@Relationship` inverses.** `TaskItem.entries` and `TaskItem.slots` declare `inverse: \Entry.task` and `inverse: \Slot.task`. `EntryStore` inserts a new `Entry` into the context and then appends it to `task.entries`. If entries end up with a nil `task` or appear twice, this is the place to look.
-- **Deleting an entry.** `EntryStore.add` removes the row from `task.entries` and then calls `context.delete`. The tests `undoToZeroDeletesTheRow` and `deletingATaskDeletesItsEntriesAndSlots` cover this and are the most likely SwiftData tests to fail.
-- **The name `Entry`.** SwiftUI has an `@Entry` macro. The model class named `Entry` may shadow it, so the code declares environment values with `EnvironmentKey` and never uses `@Entry`. If the name causes any other clash, rename the model (and update DESIGN.md 5.2).
-
-### 3.4 Notifications
-
-`ReminderScheduler.requestAuthorization()` awaits `UNUserNotificationCenter.requestAuthorization(options:)` from the main actor. Swift 6 may complain about sending a non-Sendable value. Nothing calls the scheduler yet, so it is safe to stub it out and return to it in phase 6.
-
-### 3.5 Imports
-
-`SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY` is on, so a file must import every module whose members it uses. A missing `import Foundation`, `import SwiftData` or `import Observation` is an easy fix when the compiler points at it.
-
-### 3.6 Tests
-
-- `try` is never used inside `#expect(...)`; results are assigned to a local first. That was a deliberate precaution.
-- `TestSupport.swift` declares a global `let today` and global functions `day(_:_:_:)`, `nov(_:)`, `isClose` and `ones`. If a global named `today` or `day` collides with anything, rename it.
-- The suites that use a model container are marked `@Suite(.serialized)` and each test makes its own in-memory container.
-- A test that fails on a number (rather than failing to compile) may be a mistake in the test's hand-worked expectation rather than in the service. Check the arithmetic against DESIGN.md section 6 before changing the service.
-
-### 3.7 Look and layout (cannot be judged without a device)
-
-- **No backdrop blur.** The mockups blur what is behind each surface. `FlatSurface` draws only the tinted gradient, border, highlight and shadow. Whether to add a blur, and how, should be decided on a device.
-- **The flat shadow** is approximated with a blurred, inset copy of the shape, because SwiftUI has no negative shadow spread.
-- **`SLBackground`** scales the mockup's 390 by 844 layout to the screen. It has not been seen on an iPad.
-- **SF Symbols** used for tabs and sample tasks were chosen by name from memory: `checkmark.circle`, `chart.line.uptrend.xyaxis`, `square.grid.2x2`, `gearshape`, `wineglass`, `pills`, `dumbbell`, `figure.walk`, `book`, `dollarsign.circle`, `pencil`, `nosign`, `figure.flexibility`, `drop`. A wrong name shows as a blank image, not an error.
-
-## 4. Differences from DESIGN.md and choices made
+## 5. Differences from DESIGN.md and choices made
 
 DESIGN.md and CLAUDE.md were updated for the first three.
 
@@ -154,7 +118,7 @@ DESIGN.md and CLAUDE.md were updated for the first three.
 
 Items 4 to 7 are interpretations, not answers to the open questions. Change them if they are wrong.
 
-## 5. Open questions marked in code
+## 6. Open questions marked in code
 
 Search for `// OPEN:`. Each uses the default stated in DESIGN.md section 12.
 
@@ -169,6 +133,6 @@ Search for `// OPEN:`. Each uses the default stated in DESIGN.md section 12.
 | 12.9 Per-task colours | `TaskItem.colorHex` |
 | 12.13 Tunable proposals | `ScoreCalculator.dailyValue`, and the constants in `HeatCalculator` and `PriorityRanker` |
 
-## 6. What comes next
+## 7. What comes next
 
-Phase 2 (DESIGN.md section 11): the Track grid, `TaskCard`, hold to fill, the tap cycle, and ordering with `PriorityRanker`. Do not start it until the project builds and every test passes.
+Phase 2 (DESIGN.md section 11): the Track grid, `TaskCard`, hold to fill, the tap cycle, and ordering with `PriorityRanker`.
