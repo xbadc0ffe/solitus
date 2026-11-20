@@ -49,7 +49,7 @@ xcrun simctl io booted screenshot track.png
   - The App Group `group.com.badc0ffe.solitus` is not registered yet and is not assigned to the App ID. The public API cannot create App Groups; do it in the developer portal or let Xcode's automatic signing do it.
   - A signed `xcodebuild` build with `-allowProvisioningUpdates` and the API key fails with "Authentication failed: Make sure a bearer token was provided", although the same key works against the App Store Connect API. Unresolved.
   - Create the app record in App Store Connect.
-  - Add an app icon. `AppIcon.appiconset` has an empty 1024-point slot and no image; the upload is rejected without one.
+  - The app icon is a placeholder (a three-section card, two sections filled) drawn by script so the first upload is accepted. Replace it with a designed icon.
   - The build number. `CURRENT_PROJECT_VERSION` is the placeholder `202611200000` on the app target (and `1` on the test target). The `ship` script sets a real timestamp.
 - **`ReminderScheduler`.** It compiles, but nothing calls it and it has no tests. Only `ReminderPlanner` is tested. Check it in phase 6.
 - **Look on a device.** Only the iPhone 17 simulator has been seen.
