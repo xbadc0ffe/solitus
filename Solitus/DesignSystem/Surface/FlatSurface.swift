@@ -3,8 +3,10 @@ import SwiftUI
 /// The flat style (DESIGN.md 9.1): a faint tinted gradient, a 1-point
 /// border, a top inner highlight and one soft drop shadow. It ignores tilt.
 ///
-/// Unverified look: the mockup also blurs whatever is behind each surface.
-/// That backdrop blur is left out until the look can be judged on a device.
+/// Only the sheet blurs what is behind it. The mockup also blurs behind
+/// every other surface; that is left out until the look can be judged on a
+/// device. With Reduce Transparency on, every surface is an opaque dark
+/// panel and nothing is blurred (DESIGN.md 9.5).
 struct FlatSurface: View {
     let role: SLSurfaceRole
     let cornerRadius: CGFloat
@@ -12,9 +14,11 @@ struct FlatSurface: View {
     let theme: SLTheme
     let tilt: SLTilt
 
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+
     var body: some View {
         let palette = theme.palette
-        let outline = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        let outline = self.outline
 
         ZStack {
             if castsShadow {
@@ -25,6 +29,11 @@ struct FlatSurface: View {
                     .padding(.top, 12)
                     .blur(radius: 9)
                     .offset(y: 10)
+            }
+            if reduceTransparency {
+                outline.fill(palette.ground)
+            } else if role == .sheet {
+                outline.fill(.ultraThinMaterial)
             }
             outline.fill(fill(palette))
             outline.strokeBorder(palette.surfaceBorder, lineWidth: 1)
@@ -41,17 +50,29 @@ struct FlatSurface: View {
         }
     }
 
+    /// Sheets round only their top corners.
+    private var outline: UnevenRoundedRectangle {
+        let bottom = role == .sheet ? 0 : cornerRadius
+        return UnevenRoundedRectangle(
+            topLeadingRadius: cornerRadius,
+            bottomLeadingRadius: bottom,
+            bottomTrailingRadius: bottom,
+            topTrailingRadius: cornerRadius,
+            style: .continuous
+        )
+    }
+
     private var castsShadow: Bool {
         switch role {
         case .card, .panel, .statCard, .bar: return true
-        case .row, .well, .sheet, .heatCell: return false
+        case .row, .well, .sheet, .heatCell, .raised: return false
         }
     }
 
     private var hasHighlight: Bool {
         switch role {
         case .well, .heatCell: return false
-        case .card, .panel, .statCard, .row, .bar, .sheet: return true
+        case .card, .panel, .statCard, .row, .bar, .sheet, .raised: return true
         }
     }
 
@@ -59,6 +80,8 @@ struct FlatSurface: View {
         switch role {
         case .well:
             return LinearGradient(colors: [palette.well, palette.well], startPoint: .top, endPoint: .bottom)
+        case .raised:
+            return LinearGradient(colors: [palette.raisedTop, palette.raisedBottom], startPoint: .top, endPoint: .bottom)
         case .card, .panel, .statCard, .row, .bar, .sheet, .heatCell:
             // 160 degrees in the mockup: mostly downward, slightly rightward.
             return LinearGradient(

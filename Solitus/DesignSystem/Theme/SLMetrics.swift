@@ -14,6 +14,14 @@ struct SLMetrics: Equatable {
     var gridColumnGap: CGFloat = 12
     var gridRowGap: CGFloat = 16
     var cardHeight: CGFloat = 108
+    /// Narrowest a Track card may be; decides the number of grid columns
+    /// (two on a phone, more on wide screens).
+    var cardMinWidth: CGFloat = 160
+    /// Widest a scrolling page's content grows on a wide screen.
+    var pageMaxWidth: CGFloat = 720
+    var trackerCardHeight: CGFloat = 112
+    var fillCardHeight: CGFloat = 58
+    var rowHeight: CGFloat = 56
 
     // Chrome
     var headerHeight: CGFloat = 44
@@ -39,6 +47,7 @@ struct SLMetrics: Equatable {
         case .statCard: return statCardRadius
         case .row: return rowRadius
         case .well: return wellRadius
+        case .raised: return selectedSegmentRadius
         case .bar: return tabBarHeight / 2
         case .sheet: return sheetRadius
         case .heatCell: return heatCellRadius

@@ -11,10 +11,15 @@ struct RootView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.colorSchemeContrast) private var contrast
     @Query private var settingsQuery: [AppSettings]
 
     @State private var selection: AppSection = .track
     @State private var motion = SLMotionProvider(source: .still)
+    @State private var router = AppRouter()
+    @State private var now = AppNow(clock: SystemClock())
+
+    private let clock: any AppClock = SystemClock()
 
     private let sections = AppSection.tasksSections
 
@@ -23,7 +28,8 @@ struct RootView: View {
     private var theme: SLTheme {
         SLTheme.darkTinted(
             hex: settings?.glassTintHex ?? SLPalette.defaultTintHex,
-            dynamicTypeSize: dynamicTypeSize
+            dynamicTypeSize: dynamicTypeSize,
+            increasedContrast: contrast == .increased
         )
     }
 
@@ -41,6 +47,19 @@ struct RootView: View {
             surfaceStyle: settings?.surfaceStyle ?? .flat,
             tilt: motion.tilt
         )
+        .environment(router)
+        .environment(\.appClock, clock)
+        .environment(\.appNow, now)
+        // "Now" moves on every minute, on the system's day change, and when
+        // the app comes forward (DESIGN.md 8.4).
+        .background {
+            TimelineView(.everyMinute) { timeline in
+                Color.clear.onChange(of: timeline.date, initial: true) { refreshNow() }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+            refreshNow()
+        }
         // OPEN: 12.5 there is no light theme yet, so the app is always dark.
         .preferredColorScheme(.dark)
         .task {
@@ -51,10 +70,18 @@ struct RootView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                refreshNow()
                 motion.start()
             } else {
                 motion.stop()
             }
+        }
+    }
+
+    private func refreshNow() {
+        let fresh = AppNow(clock: clock)
+        if fresh != now {
+            now = fresh
         }
     }
 

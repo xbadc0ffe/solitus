@@ -30,9 +30,16 @@ struct SLTheme: Equatable {
 
     /// The dark theme with a user-chosen glass tint, given as a hex string
     /// such as `#DCE6F5`. An unreadable string falls back to the default.
-    static func darkTinted(hex tintHex: String, dynamicTypeSize: DynamicTypeSize = .large) -> SLTheme {
+    static func darkTinted(
+        hex tintHex: String,
+        dynamicTypeSize: DynamicTypeSize = .large,
+        increasedContrast: Bool = false
+    ) -> SLTheme {
         let tint = Color(slHexString: tintHex) ?? Color(slHex: 0xDCE6F5)
-        return SLTheme(palette: .dark(tint: tint), dynamicTypeSize: dynamicTypeSize)
+        return SLTheme(
+            palette: .dark(tint: tint, increasedContrast: increasedContrast),
+            dynamicTypeSize: dynamicTypeSize
+        )
     }
 
     func font(_ role: SLTextRole) -> Font {

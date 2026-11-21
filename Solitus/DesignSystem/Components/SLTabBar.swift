@@ -38,6 +38,8 @@ struct SLTabBar: View {
         }
         .frame(height: metrics.tabBarHeight)
         .background(SLSurface(role: .bar))
+        // On a wide screen the bar stays a pill instead of spanning the width.
+        .frame(maxWidth: 480)
         .padding(.horizontal, metrics.screenMargin)
         .padding(.bottom, metrics.tabBarBottomInset)
         .accessibilityElement(children: .contain)

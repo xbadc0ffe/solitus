@@ -13,6 +13,8 @@ nonisolated enum SLSurfaceStyle: String, CaseIterable, Sendable {
 /// What a surface is for. The style decides how each role is drawn.
 nonisolated enum SLSurfaceRole: String, CaseIterable, Sendable {
     case card, panel, statCard, row, well, bar, sheet, heatCell
+    /// A raised control: a selected segment, a stepper button, a chip.
+    case raised
 }
 
 /// The outline of a card. A parameter from the start so circles and other

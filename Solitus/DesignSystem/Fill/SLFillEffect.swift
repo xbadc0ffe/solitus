@@ -62,6 +62,13 @@ struct SLFill: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: radius, style: .continuous))
+        .overlay {
+            if tone == .alert && fraction >= 1 {
+                // A logged Avoid task has a red edge (DESIGN.md 7.2).
+                RoundedRectangle(cornerRadius: radius, style: .continuous)
+                    .strokeBorder(theme.palette.alertEdge, lineWidth: 1)
+            }
+        }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }

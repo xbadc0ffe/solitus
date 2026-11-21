@@ -15,6 +15,8 @@ struct SLPalette: Equatable {
     let textPrimary: Color
     let textSecondary: Color
     let textFaint: Color
+    /// The large, faint task icon behind a card's text.
+    let iconGhost: Color
 
     // Surfaces
     let surfaceTop: Color
@@ -44,6 +46,14 @@ struct SLPalette: Equatable {
     // Sheets
     let sheetScrim: Color
 
+    // Trend graph lines (DESIGN.md 7.5): Total, Best, Worst, then the
+    // colours given in turn to task lines added on the trend sheet.
+    let lineTotal: Color
+    let lineBest: Color
+    let lineWorst: Color
+    let lineExtras: [Color]
+    let gridLine: Color
+
     // Background light
     let backgroundFieldA: Color
     let backgroundFieldB: Color
@@ -60,7 +70,10 @@ extension SLPalette {
     static let defaultTintHex = "#DCE6F5"
 
     /// The dark neutral palette, built around a glass tint.
-    static func dark(tint: Color) -> SLPalette {
+    ///
+    /// `increasedContrast` follows the system's Increase Contrast setting
+    /// (DESIGN.md 9.5): stronger borders, and secondary text becomes primary.
+    static func dark(tint: Color, increasedContrast: Bool = false) -> SLPalette {
         let white = Color.white
         let black = Color.black
         let alert = Color(red: 226 / 255, green: 92 / 255, blue: 72 / 255)
@@ -71,11 +84,12 @@ extension SLPalette {
             tint: tint,
             ground: Color(slHex: 0x08090B),
             textPrimary: white,
-            textSecondary: white.opacity(0.74),
-            textFaint: white.opacity(0.62),
+            textSecondary: increasedContrast ? white : white.opacity(0.74),
+            textFaint: increasedContrast ? white.opacity(0.80) : white.opacity(0.62),
+            iconGhost: white.opacity(0.09),
             surfaceTop: tint.opacity(0.11),
             surfaceBottom: tint.opacity(0.03),
-            surfaceBorder: white.opacity(0.12),
+            surfaceBorder: white.opacity(increasedContrast ? 0.30 : 0.12),
             surfaceHighlight: white.opacity(0.18),
             shadow: black.opacity(0.75),
             well: black.opacity(0.30),
@@ -93,6 +107,16 @@ extension SLPalette {
             seamLight: white.opacity(0.36),
             seamGlow: white.opacity(0.08),
             sheetScrim: black.opacity(0.50),
+            lineTotal: white,
+            lineBest: Color(red: 255 / 255, green: 164 / 255, blue: 44 / 255),
+            lineWorst: white.opacity(0.55),
+            lineExtras: [
+                Color(red: 120 / 255, green: 190 / 255, blue: 255 / 255),
+                Color(red: 150 / 255, green: 230 / 255, blue: 170 / 255),
+                Color(red: 235 / 255, green: 150 / 255, blue: 220 / 255),
+                Color(red: 240 / 255, green: 225 / 255, blue: 130 / 255),
+            ],
+            gridLine: white.opacity(0.10),
             backgroundFieldA: Color(red: 140 / 255, green: 158 / 255, blue: 190 / 255).opacity(0.30),
             backgroundFieldB: Color(red: 150 / 255, green: 152 / 255, blue: 172 / 255).opacity(0.16),
             backgroundFieldC: Color(red: 112 / 255, green: 132 / 255, blue: 162 / 255).opacity(0.20),
@@ -113,6 +137,15 @@ extension SLPalette {
     func heatColor(step: Int) -> Color {
         guard let last = heatRamp.indices.last else { return ground }
         return heatRamp[min(max(step, 0), last)]
+    }
+
+    /// The heat colour for a continuous level from 0 to 1, interpolated
+    /// between the stops of the ramp (DESIGN.md 9.3).
+    func heatColor(level: Double) -> Color {
+        guard let last = heatRamp.indices.last, last > 0 else { return ground }
+        let scaled = min(max(level, 0), 1) * Double(last)
+        let lower = min(Int(scaled), last - 1)
+        return heatRamp[lower].mix(with: heatRamp[lower + 1], by: scaled - Double(lower))
     }
 
     /// The colour of a number drawn on a heat step.
