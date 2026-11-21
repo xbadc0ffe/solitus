@@ -1,6 +1,6 @@
 # Build notes
 
-State after the first Mac session (Mac mini, 2026-11-20). The code was written on a Windows PC without a Swift toolchain; this session compiled it, ran the tests and launched the app. **No source file had to change.**
+State on 2026-11-20, version 26.0.3. Phases 0 to 7 of DESIGN.md section 11 are built. Everything was built and tested on the Mac mini; the look and feel on a real phone is for TestFlight testing to judge.
 
 ## 1. Verified state
 
@@ -8,120 +8,88 @@ State after the first Mac session (Mac mini, 2026-11-20). The code was written o
 |---|---|
 | Xcode | 27.1 (27A9275) |
 | iOS SDK | 27.1 |
-| Deployment target | iOS 26.4 (unchanged) |
-| Simulator | iPhone 17, iOS 27.0 |
-| App build | Succeeds with no errors and no compiler warnings |
-| Tests | 135 tests in 12 suites, all pass |
+| Deployment target | iOS 26.4 |
+| Simulators used | iPhone 17 (iOS 27.0), iPad Pro 13-inch (M5) for screenshots |
+| App build | Succeeds, Debug and Release, with no compiler warnings |
+| Unit tests | 162 tests in 16 suites, all pass |
+| UI tests | 16 tests, all pass |
 
-Verified by running, not only by compiling:
+Verified by the UI tests, which drive the app in the simulator:
 
-- `xcodebuild -list` reads the hand-made project file and shows targets `Solitus` and `SolitusTests` and the scheme `Solitus`.
-- Swift 6 with MainActor default isolation accepts the `nonisolated` pattern on structs, enums, protocols and extensions. The fallback of deleting the keyword was not needed.
-- The SwiftData container opens in the App Group container on the simulator. `ModelConfiguration` and `ModelContainer` argument labels are right.
-- `-seedSampleData` installs 10 tasks, 647 entries and 3 slots. Every entry has its task, and no task has two entries for one day, so the `@Relationship` inverses work as written.
-- The shell matches the design: dark ground with soft light fields and two diagonal bands, the date ("Fri, Nov 20") at top left and the time at top right of Track, and a floating pill tab bar with Track, Trends, Tasks and Settings.
-- All 14 SF Symbol names used for tabs and sample tasks exist in the installed symbol set.
+- Holding a card logs one (single-count, multi-count and Avoid cards). A short press does not. Lifting after a hold is not also a tap.
+- Tapping a card cycles its quick stat. A double tap opens Task details.
+- A drag that starts on a card scrolls the page and logs nothing.
+- Task details: Undo last appears and disappears with today's count; the tracker card logs; Edit opens the sheet.
+- The form: Save needs a name; switching to Avoid changes the goal options; a new task appears on Tasks and Track; preferred times open and clear; Delete removes the task.
+- Tasks: dragging a handle reorders and the order is kept.
+- Trends: the 30/90 switch, opening and closing the graph sheet.
+- Settings: switches turn. First run: the three empty states, and "Load sample tasks".
+
+Verified by screenshot, on the iPhone 17 and the iPad Pro 13-inch: every screen's layout with the sample tasks, the year view of the heat calendar, the sheet, and the empty state.
+
+Verified on a device: 26.0.2 launches (26.0.1 crashed; see section 3).
 
 ## 2. Commands
 
 Run from the repository root.
 
 ```
-xcodebuild -list -project Solitus.xcodeproj
 xcodebuild build -scheme Solitus -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO
 xcodebuild test -scheme Solitus -destination 'platform=iOS Simulator,name=iPhone 17'
+xcodebuild test -scheme SolitusUITests -destination 'platform=iOS Simulator,name=iPhone 17' -parallel-testing-enabled NO
+ship Solitus <version>
 ```
 
-If the test run hangs with "Simulator device failed to launch com.badc0ffe.solitus" on "Clone 1 of iPhone 17", stop it and add `-parallel-testing-enabled NO`. This happened once, on the very first run, and not again; it is a simulator clone problem, not a fault in the project.
+- The UI tests take about four minutes. After they finish, `xcodebuild` sometimes does not exit; once the log shows `Executed 16 tests`, it can be stopped.
+- If a test run hangs at the start with "Simulator device failed to launch" on "Clone 1 of iPhone 17", stop it and add `-parallel-testing-enabled NO`.
+- The UI test target is Swift 5 without MainActor-by-default, because `XCTestCase` does not fit that mode. The app and the unit tests are Swift 6.
 
-To launch in a booted simulator with the sample tasks (nothing shows them yet; the Track grid is phase 2):
+Launch arguments for looking at a screen without tapping (debug builds only; see `Solitus/App/DebugLaunch.swift`):
 
 ```
-xcrun simctl install booted <DerivedData>/Build/Products/Debug-iphonesimulator/Solitus.app
-xcrun simctl launch booted com.badc0ffe.solitus -seedSampleData
-xcrun simctl io booted screenshot track.png
+xcrun simctl launch booted com.badc0ffe.solitus -inMemoryStore -seedSampleData -startTab trends
+xcrun simctl launch booted com.badc0ffe.solitus -inMemoryStore -seedSampleData -openFirstTask -heatYearView
+xcrun simctl launch booted com.badc0ffe.solitus -inMemoryStore -seedSampleData -openSheet add
+xcrun simctl io booted screenshot shot.png
 ```
 
-## 3. Still unverified
+## 3. Signing and uploads
 
-- **Signing and the App Group on a device.** Every build so far was unsigned or for the simulator. Before the first TestFlight build:
-  - The App ID `com.badc0ffe.solitus` and the App Group `group.com.badc0ffe.solitus` are registered and linked (2026-11-20). A signed device build with `-allowProvisioningUpdates` and the API key succeeds and carries the group entitlement, so `ship Solitus` should work; a full `ship` run has not been done yet.
-  - An API key cannot create an App Group or attach one to an App ID. If either is missing, `xcodebuild` reports "Authentication failed: Make sure a bearer token was provided". Both steps are done by hand in the developer portal.
-  - **26.0.1 (202611201542) crashes at launch on a device.** It was uploaded without the App Group entitlement, before the group existed. On a device, `ModelConfiguration(groupContainer: .identifier(...))` for a group the app is not entitled to stops the process instead of throwing, so the fallback in `ModelContainerFactory` never ran. The simulator does not enforce entitlements and did not show this. Fixed in 26.0.2: the factory asks `FileManager` for the group container first, and the build carries the entitlement.
-  - The App Group container has only been exercised in the simulator, not on a device.
-  - The app icon is a placeholder (a three-section card, two sections filled) drawn by script so the first upload is accepted. Replace it with a designed icon.
-  - The build number in the project is the placeholder `202611200000`; `ship` overrides it with a real timestamp.
-- **`ReminderScheduler`.** It compiles, but nothing calls it and it has no tests. Only `ReminderPlanner` is tested. Check it in phase 6.
-- **Look on a device.** Only the iPhone 17 simulator has been seen.
-  - No backdrop blur. The mockups blur what is behind each surface; `FlatSurface` draws only the tinted gradient, border, highlight and shadow.
-  - The flat shadow is approximated with a blurred, inset copy of the shape, because SwiftUI has no negative shadow spread.
-  - `SLBackground` scales the mockup's 390 by 844 layout to the screen. It has not been seen on an iPad.
-- **Surfaces other than the tab bar.** No screen draws a card yet, so `FlatSurface` roles other than `bar`, and `SweepFill`, have compiled but have not been seen.
-- **Schema migration.** `TasksSchemaV1` lists top-level model classes rather than nesting them. That works for version 1. When a second version is needed, the old model classes must be copied into `TasksSchemaV1` as frozen nested types.
+- The App ID `com.badc0ffe.solitus` and the App Group `group.com.badc0ffe.solitus` are registered and linked. `ship Solitus <version>` works.
+- An API key cannot create an App Group or attach one to an App ID. If either is missing, `xcodebuild` reports "Authentication failed: Make sure a bearer token was provided". Both steps are done by hand in the developer portal.
+- **26.0.1 crashed at launch on a device.** It was uploaded without the App Group entitlement. On a device, `ModelConfiguration(groupContainer: .identifier(...))` for a group the app is not entitled to stops the process instead of throwing. The simulator does not enforce entitlements and did not show this. Since 26.0.2 the factory asks `FileManager` for the group container first, and builds carry the entitlement.
+- TestFlight crash logs can be read through the App Store Connect API (`betaFeedbackCrashSubmissions`), once the tester sends the crash from the TestFlight prompt.
 
-## 4. What exists
+## 4. Still unverified
 
-**Xcode project.** `Solitus.xcodeproj`, made by copying Pull State's `project.pbxproj` and shared scheme and renaming. Two targets, file-system-synchronised groups for the `Solitus` and `SolitusTests` folders, bundle ID `com.badc0ffe.solitus`, version 26.0.2, iPhone and iPad, Swift 6 with MainActor default isolation, `SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY` on (a file must import every module whose members it uses), team `ZWS3TP3W3Z`. `Solitus/Solitus.entitlements` holds the App Group. `Solitus/PrivacyInfo.xcprivacy` declares no tracking and no collected data.
+- **Feel on a device.** The hold's timing (0.12 s rest, 0.6 s in all), the pop, the haptics, and the delay a double tap adds to a single tap (open question 12.7) can only be judged in the hand.
+- **Look on a device.** Only simulators have been seen. Only the tab bar and the sheet blur what is behind them; the mockups blur behind every surface. The flat shadow is an approximation.
+- **Reminders.** The planner is unit tested and the scheduling is wired in, but no notification has been seen to arrive, and the permission prompt has not been answered in a test.
+- **CSV export.** The text is unit tested. The share sheet has not been opened in a test.
+- **The time wheel, weekday chips and day stepper** for preferred times were not driven by a test beyond opening and clearing a chip.
+- **Dynamic Type, Reduce Motion, Reduce Transparency, Increase Contrast, VoiceOver.** Implemented, not exercised.
+- **The App Group container** has only been used in the simulator and by 26.0.2's launch on a device.
+- **Schema migration.** `TasksSchemaV1` lists top-level model classes rather than nesting them. When a second version is needed, the old model classes must be copied into `TasksSchemaV1` as frozen nested types. No stored property was changed between 26.0.2 and 26.0.3.
 
-**Core** (`Solitus/Core`)
+## 5. Temporary things to remove before the public release
 
-| File | Contents |
-|---|---|
-| `DayKey.swift` | A calendar day as an integer day number. Parsing and printing `yyyy-MM-dd`, adding days, weekday, month lengths. No `Calendar` except at the edges. |
-| `Clock.swift` | `AppClock` protocol, `SystemClock`, `FixedClock` for tests. |
-| `PeriodCalculator.swift` | Daily, weekly (any week start) and monthly spans; period counts. |
-| `AppSettings.swift` | The single settings record (DESIGN.md 5.4). |
+- The "Testing" group in Settings with "Load sample tasks", and with it the reason `SampleData` is compiled into release builds.
 
-**Models** (`Solitus/Features/Tasks/Models`): `TaskItem`, `Entry`, `Slot` (SwiftData), `TasksSchemaV1` and `TasksMigrationPlan`, the enums in `TaskEnums.swift`, and the value snapshots `TaskRules`, `SlotRule`, `TaskHistory` in `TaskRules.swift`.
+## 6. Interpretations made while building
 
-**Services** (`Solitus/Features/Tasks/Services`)
+These are choices where DESIGN.md was silent or two readings were possible. They are not answers to the open questions. DESIGN.md section 14 lists the screen-level ones.
 
-| File | DESIGN.md | Notes |
-|---|---|---|
-| `ScoreCalculator.swift` | 6.2, 6.3, 6.4 | Met or not, period score, daily value. |
-| `RunningAverage.swift` | 6.5 | Single average, series for the graph, fill level. |
-| `TrendAggregator.swift` | 6.6 | Total average, best and worst groups, group lines, top streaks. Not in the original folder map. |
-| `StreakCalculator.swift` | 6.7 | Current, best and average streak, with gap allowance. |
-| `HeatCalculator.swift` | 6.8 | Per-task and all-tasks heat. Weights are named constants. |
-| `PriorityRanker.swift` | 6.9 | Track order. Every number is a named constant. |
-| `EntryStore.swift` | 5.2 | The only writer of entries. Log one, undo one. |
-| `ReminderScheduler.swift` | 10 | `ReminderPlanner` (pure, tested) and `ReminderScheduler` (talks to the notification centre, untested). |
-| `CSVExporter.swift` | 10 | Builds the CSV text. The share sheet is phase 6. |
-| `SampleData.swift` | | Debug only. The ten tasks from the Track mockup with 120 days of history. |
+1. **The clock is `AppClock`, not `Clock`.** Swift's standard library has a `Clock` protocol.
+2. **Services work on values, not models.** `TaskItem` produces `TaskRules`, `TaskHistory` and slot values; the calculators never see SwiftData.
+3. **"Exactly N" is met at N or more.** A count above N cannot be logged, but can appear if the target is lowered later.
+4. **An Avoid task that goes over its limit ends its streak at once**, rather than when the period ends, because the period can never be met again.
+5. **Track group 3 holds no-limit Do tasks only.** Every Avoid task goes to group 1 (logged and pinned) or group 4.
+6. **Reminders are planned a fixed number of days ahead** (7 for daily, 14 for weekly, 35 for monthly) as one-shot notifications, capped at 60, and rebuilt on every change.
+7. **The motion source `static` is spelled `.still` in code**, because `static` is a Swift keyword.
+8. **The sheet is drawn by the app, not the system**, so that it can leave the strip of screen visible and blur what is behind it.
+9. **The long press is a UIKit recogniser** (`SLHoldGesture`), so that it cannot stop a scroll view from scrolling.
 
-**Design system** (`Solitus/DesignSystem`): the four seams from DESIGN.md 4.3, each with its one first implementation.
-
-| Seam | Files |
-|---|---|
-| `SLTheme` | `Theme/SLTheme.swift`, `SLPalette.swift`, `SLMetrics.swift`, `SLTypography.swift` |
-| `SLSurfaceStyle` | `Surface/SLSurfaceStyle.swift`, `SLSurface.swift`, `FlatSurface.swift` |
-| `SLFillEffect` | `Fill/SLFillEffect.swift` (also the `SLFill` view), `SweepFill.swift` |
-| `SLMotionProvider` | `Motion/SLMotionProvider.swift`, `StaticMotion.swift` |
-
-Components: `SLBackground` and `SLTabBar` only. `SLSegmented`, `SLStepper`, `SLToggle`, `SLSheet`, `SLHeatCell` and `SLStatCard` are not written; they belong to phases 3 and 4.
-
-**App** (`Solitus/App`): `SolitusApp`, `RootView`, `AppSection`, `ModelContainerFactory`.
-
-**Screens.** `TrackView` shows the date and time header and nothing else. `TrendsView`, `TaskListView` and `SettingsView` show a title. `Features/Tasks/Detail` and `Features/Tasks/Edit` have no files yet, so those folders do not exist in git.
-
-**Tests** (`SolitusTests`): 13 files (12 suites and a helper file), 135 test functions, covering every service above plus the models. All pass (section 1).
-
-## 5. Differences from DESIGN.md and choices made
-
-DESIGN.md and CLAUDE.md were updated for the first three.
-
-1. **The clock is `AppClock`, not `Clock`.** Swift's standard library has a `Clock` protocol. The file is still `Core/Clock.swift`.
-2. **Services work on values, not models.** `TaskItem` produces `TaskRules`, `TaskHistory` and slot values; the calculators never see SwiftData. This is what makes them testable without a container.
-3. **Extra files**: `TaskEnums.swift`, `TaskRules.swift`, `TrendAggregator.swift` (section 6.6 had no service in the folder map), `SampleData.swift`.
-4. **"Exactly N" is met at N or more.** A count above N cannot be logged, but can appear if the target is lowered later. Such a period counts as met rather than leaving the card stuck.
-5. **An Avoid task that goes over its limit ends its streak at once.** DESIGN.md 6.7 says an unmet current period does not break a streak until it ends. That is implemented for Do tasks. For an Avoid task, a period that is over the limit can never be met again, so waiting would show a streak that is already lost.
-6. **Track groups for no-limit Avoid tasks.** DESIGN.md 6.9 group 3 is "No-limit tasks". Here it holds no-limit Do tasks only; every Avoid task, with or without a limit, goes to group 1 (logged and pinned) or group 4.
-7. **Reminders are planned a fixed number of days ahead** (7 for daily, 14 for weekly, 35 for monthly) as one-shot notifications, capped at 60, and rebuilt on every change. Future periods are planned as if nothing is logged.
-8. **The motion source `static` is spelled `.still` in code** (raw value `"static"`), because `static` is a Swift keyword.
-
-Items 4 to 7 are interpretations, not answers to the open questions. Change them if they are wrong.
-
-## 6. Open questions marked in code
+## 7. Open questions marked in code
 
 Search for `// OPEN:`. Each uses the default stated in DESIGN.md section 12.
 
@@ -129,13 +97,17 @@ Search for `// OPEN:`. Each uses the default stated in DESIGN.md section 12.
 |---|---|
 | 12.1 Heat for Avoid tasks | `HeatCalculator.amount` |
 | 12.2 Groups with few tasks | `TrendAggregator.groups` |
-| 12.4 Undo and direct entry | `EntryStore.undoOne` |
-| 12.5 Light theme | `AppSettings`, `SLTheme`, `RootView` |
+| 12.3 Filters on Track | `TrackView` |
+| 12.4 Undo and direct entry | `EntryStore.undoOne`, `TaskDetailView` |
+| 12.5 Light theme | `AppSettings`, `SLTheme`, `RootView`, `SettingsView` |
 | 12.6 Holding past an "exactly" target | `EntryStore.logOne` |
+| 12.7 Tap versus double tap | `TaskCard` |
 | 12.8 Reminder time for weekly and monthly tasks | `ReminderPlanner` |
 | 12.9 Per-task colours | `TaskItem.colorHex` |
+| 12.11 Empty and first-run states | `SLEmptyState` |
+| 12.12 iPad layout | `TrackView` |
 | 12.13 Tunable proposals | `ScoreCalculator.dailyValue`, and the constants in `HeatCalculator` and `PriorityRanker` |
 
-## 7. What comes next
+## 8. What comes next
 
-Phase 2 (DESIGN.md section 11): the Track grid, `TaskCard`, hold to fill, the tap cycle, and ordering with `PriorityRanker`.
+Phase 8 (DESIGN.md section 11): the 3D glass style and device motion. Before that, a round of testing 26.0.3 on the phone and the iPad, and decisions on the open questions that testing brings up.

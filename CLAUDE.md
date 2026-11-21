@@ -6,7 +6,7 @@ Read `docs/DESIGN.md` before changing anything. It is the specification. Once co
 
 - iOS and iPadOS app. SwiftUI, SwiftData, Swift Charts. Swift 6 language mode, MainActor default isolation.
 - Bundle ID `com.badc0ffe.solitus`. App Group `group.com.badc0ffe.solitus`.
-- Version scheme `<year>.<major>.<minor>`, starting at 26.0.1. Build number is a `yyyyMMddHHmm` timestamp.
+- Version scheme `<year>.<major>.<minor>`. Minor goes up by one on every upload. Build number is a `yyyyMMddHHmm` timestamp set by `ship`.
 - MIT licence. Repository `xbadc0ffe/solitus`.
 
 ## Hard rules
@@ -18,11 +18,14 @@ Read `docs/DESIGN.md` before changing anything. It is the specification. Once co
 - Never call `.navigationBarBackButtonHidden(true)`.
 - The task model is `TaskItem`, never `Task`.
 - Views never apply a material, shadow, border or colour directly. Surfaces come from `SLSurface(role:)`, colours from `SLTheme`, progress from an `SLFillEffect`, tilt from an `SLMotionProvider` (DESIGN.md section 4.3).
-- Every sheet is given the theme, surface style and motion provider explicitly; sheets do not inherit custom environment values.
+- Every pop-up page uses `SLSheet` (`.slSheet(item:)`), which is drawn in the view tree and passes the theme, surface style and motion tilt on. A system sheet, if one is ever needed, must be given all three explicitly; system sheets do not inherit custom environment values.
+- A long press inside a scroll view uses `SLHoldGesture`, never `.onLongPressGesture`, which can stop the scroll view from scrolling.
+- Do not add, remove or rename a stored property of a SwiftData model without a new schema version and a migration stage; TestFlight installs already hold a version 1 store.
 - "Today" comes from the injectable `AppClock` (`Core/Clock.swift`), never from `Date()` inside a service.
 - Do not use SwiftUI's `@Entry` macro; the model class `Entry` shadows it. Declare environment values with an `EnvironmentKey`.
 - Calculation services take plain values (`TaskRules`, `TaskHistory`, `[DayKey: Int]`), not SwiftData models. Pure value types and services are marked `nonisolated`.
-- Every rule in DESIGN.md section 6 lives in a service with no SwiftUI import and has unit tests (Swift Testing).
+- Every rule in DESIGN.md section 6 lives in a service with no SwiftUI import and has unit tests (Swift Testing). Form and card logic lives in plain values (`TaskDraft`, `CardStatusFormatter`, `TrendData`) and is unit tested too.
+- Gestures and flows are covered by UI tests in `SolitusUITests`. Run them after touching a gesture, the sheet, navigation or the form: `xcodebuild test -scheme SolitusUITests -destination 'platform=iOS Simulator,name=iPhone 17'`.
 - Entries are keyed by a `yyyy-MM-dd` string, never by `Date`.
 - Use file-system-synchronised groups in the Xcode project so new files need no project edits.
 
@@ -37,7 +40,7 @@ Read `docs/DESIGN.md` before changing anything. It is the specification. Once co
 ## Machines
 
 - **Windows PC**: writes code and pushes. It cannot build or run Swift. State clearly in the commit message that the code is unverified.
-- **Mac mini (CoffeeDev)**, headless over SSH: builds and tests with `xcodebuild`, archives, and uploads to TestFlight. Testing happens on a physical phone through TestFlight, not over USB.
+- **Mac mini (CoffeeDev)**, headless over SSH: builds and tests with `xcodebuild`, archives, and uploads to TestFlight with `ship Solitus <version>`. Nothing can tap the simulator by hand there; use the UI tests, and the launch arguments in `App/DebugLaunch.swift` for screenshots. Testing by a person happens on a physical phone through TestFlight, not over USB.
 
 ## Commits
 

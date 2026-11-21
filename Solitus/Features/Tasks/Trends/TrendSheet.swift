@@ -60,14 +60,19 @@ struct TrendSheet: View {
 
                     SLGroup("Lines") {
                         ForEach(defaults) { line in
-                            lineRow(line, isOn: !state.hidden.contains(line.id)) { isOn in
-                                update { $0.hidden = isOn ? $0.hidden.filter { $0 != line.id } : $0.hidden + [line.id] }
-                            }
+                            lineRow(line, isOn: Binding(
+                                get: { !state.hidden.contains(line.id) },
+                                set: { isOn in
+                                    update { $0.hidden = isOn ? $0.hidden.filter { $0 != line.id } : $0.hidden + [line.id] }
+                                }
+                            ))
                         }
                         ForEach(added) { line in
-                            lineRow(line, isOn: true) { _ in
-                                update { $0.taskIDs.removeAll { $0.uuidString == line.id } }
-                            }
+                            // Switching an added line off removes it.
+                            lineRow(line, isOn: Binding(
+                                get: { true },
+                                set: { _ in update { $0.taskIDs.removeAll { $0.uuidString == line.id } } }
+                            ))
                         }
                         if !available.isEmpty {
                             SLButton(title: showsPicker ? "Done adding" : "Add a task", symbol: showsPicker ? nil : "plus", fillsWidth: true) {
@@ -92,12 +97,12 @@ struct TrendSheet: View {
     }
 
     /// A sample of the stroke, the name, today's value and a switch.
-    private func lineRow(_ line: TrendLine, isOn: Bool, set: @escaping (Bool) -> Void) -> some View {
+    private func lineRow(_ line: TrendLine, isOn: Binding<Bool>) -> some View {
         HStack(spacing: 10) {
             TrendLineSample(kind: line.kind)
             SLToggle(
                 label: "\(line.name)  \(CardStatusFormatter.percent(line.current))",
-                isOn: Binding(get: { isOn }, set: set)
+                isOn: isOn
             )
         }
     }

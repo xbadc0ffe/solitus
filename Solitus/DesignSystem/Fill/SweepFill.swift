@@ -5,7 +5,7 @@ import SwiftUI
 /// the edge toward the next step (DESIGN.md 8.2).
 ///
 /// This file only draws. The hold gesture, its easing, the "pop" and the
-/// haptic belong to the Track card and are built in phase 2.
+/// haptic belong to `TaskCard`.
 struct SweepFill: View {
     /// Total hold time in seconds. A v1 proposal; tune on the device.
     static let holdDuration = 0.6

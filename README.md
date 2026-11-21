@@ -4,7 +4,7 @@ A personal task and habit tracker for iPhone and iPad. Hold a card to mark a tas
 
 Solitus is free, open source and local only. There is no account, no server, no analytics and no network access.
 
-**Status: early development.** The data model, the calculation rules and the design-system skeleton exist. The app launches to an empty shell with four tabs. No screen is finished yet.
+**Status: in TestFlight testing.** Track, Task details, Add/Edit, the Tasks list, Trends and Settings are built in the flat style. The 3D glass style, widgets and the later feature areas are not.
 
 ## Requirements
 

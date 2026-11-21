@@ -9,6 +9,7 @@
 /* Begin PBXFileReference section */
 		5011A58F2F9EA0E5002AAA72 /* Solitus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Solitus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5011B7000000000000000A02 /* SolitusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SolitusTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5011B7000000000000000B02 /* SolitusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SolitusUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -20,6 +21,11 @@
 		5011B7000000000000000A03 /* SolitusTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "SolitusTests";
+			sourceTree = "<group>";
+		};
+		5011B7000000000000000B03 /* SolitusUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "SolitusUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -39,6 +45,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5011B7000000000000000B05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -47,6 +60,7 @@
 			children = (
 				5011A5912F9EA0E5002AAA72 /* Solitus */,
 				5011B7000000000000000A03 /* SolitusTests */,
+				5011B7000000000000000B03 /* SolitusUITests */,
 				5011A5902F9EA0E5002AAA72 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +70,7 @@
 			children = (
 				5011A58F2F9EA0E5002AAA72 /* Solitus.app */,
 				5011B7000000000000000A02 /* SolitusTests.xctest */,
+				5011B7000000000000000B02 /* SolitusUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,10 +123,40 @@
 			productReference = 5011B7000000000000000A02 /* SolitusTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		5011B7000000000000000B01 /* SolitusUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5011B7000000000000000B07 /* Build configuration list for PBXNativeTarget "SolitusUITests" */;
+			buildPhases = (
+				5011B7000000000000000B04 /* Sources */,
+				5011B7000000000000000B05 /* Frameworks */,
+				5011B7000000000000000B06 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5011B7000000000000000B11 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5011B7000000000000000B03 /* SolitusUITests */,
+			);
+			name = "SolitusUITests";
+			packageProductDependencies = (
+			);
+			productName = "SolitusUITests";
+			productReference = 5011B7000000000000000B02 /* SolitusUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXContainerItemProxy section */
 		5011B7000000000000000A10 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5011A5872F9EA0E5002AAA72 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5011A58E2F9EA0E5002AAA72;
+			remoteInfo = "Solitus";
+		};
+		5011B7000000000000000B10 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5011A5872F9EA0E5002AAA72 /* Project object */;
 			proxyType = 1;
@@ -125,6 +170,11 @@
 			isa = PBXTargetDependency;
 			target = 5011A58E2F9EA0E5002AAA72 /* Solitus */;
 			targetProxy = 5011B7000000000000000A10 /* PBXContainerItemProxy */;
+		};
+		5011B7000000000000000B11 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5011A58E2F9EA0E5002AAA72 /* Solitus */;
+			targetProxy = 5011B7000000000000000B10 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -140,6 +190,10 @@
 						CreatedOnToolsVersion = 26.4.1;
 					};
 					5011B7000000000000000A01 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = 5011A58E2F9EA0E5002AAA72;
+					};
+					5011B7000000000000000B01 = {
 						CreatedOnToolsVersion = 27.1;
 						TestTargetID = 5011A58E2F9EA0E5002AAA72;
 					};
@@ -161,6 +215,7 @@
 			targets = (
 				5011A58E2F9EA0E5002AAA72 /* Solitus */,
 				5011B7000000000000000A01 /* SolitusTests */,
+				5011B7000000000000000B01 /* SolitusUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -180,6 +235,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5011B7000000000000000B06 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -191,6 +253,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		5011B7000000000000000A04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5011B7000000000000000B04 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -338,7 +407,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
-				MARKETING_VERSION = 26.0.2;
+				MARKETING_VERSION = 26.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -378,7 +447,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
-				MARKETING_VERSION = 26.0.2;
+				MARKETING_VERSION = 26.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -403,7 +472,7 @@
 				DEVELOPMENT_TEAM = ZWS3TP3W3Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 26.0.2;
+				MARKETING_VERSION = 26.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -418,6 +487,26 @@
 			};
 			name = Debug;
 		};
+		5011B7000000000000000B08 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZWS3TP3W3Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 26.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus.uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Solitus;
+			};
+			name = Debug;
+		};
 		5011B7000000000000000A09 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -427,7 +516,7 @@
 				DEVELOPMENT_TEAM = ZWS3TP3W3Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 26.0.2;
+				MARKETING_VERSION = 26.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -439,6 +528,26 @@
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Solitus.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Solitus";
+			};
+			name = Release;
+		};
+		5011B7000000000000000B09 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ZWS3TP3W3Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 26.0.3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus.uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Solitus;
 			};
 			name = Release;
 		};
@@ -468,6 +577,15 @@
 			buildConfigurations = (
 				5011B7000000000000000A08 /* Debug */,
 				5011B7000000000000000A09 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5011B7000000000000000B07 /* Build configuration list for PBXNativeTarget "SolitusUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5011B7000000000000000B08 /* Debug */,
+				5011B7000000000000000B09 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

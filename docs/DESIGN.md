@@ -1,6 +1,6 @@
 # Solitus design guide
 
-Version 26.0.1 (initial). Written 2026-11-20 from the planning and mockup session.
+Written 2026-11-20 from the planning and mockup session. Updated the same day for version 26.0.3, in which phases 2 to 7 of section 11 were built; section 14 lists what was decided while building.
 
 Solitus is a personal task and habit tracker for iPhone and iPad. You hold a card to mark a task done, and the app shows how consistently you do each task over time. It is free, open source (MIT), local-only, and published under the GitHub handle `xbadc0ffe`.
 
@@ -49,7 +49,7 @@ Out of scope for now: iCloud sync, Apple Watch, sharing, any account system, and
 | UI and storage | SwiftUI and SwiftData. Swift Charts for the trend graph. |
 | Dependencies | None. No third-party packages. |
 | Licence and repo | MIT, `xbadc0ffe/solitus` |
-| Tests | Swift Testing, unit tests for every service in section 6. |
+| Tests | Swift Testing, unit tests for every service in section 6 (`SolitusTests`). XCTest UI tests that drive the gestures and flows in the simulator (`SolitusUITests`, its own scheme). |
 
 **Versioning.** `<year>.<major>.<minor>`, starting at **26.0.1**. Testing builds stay on major 0. The public release happens on a major-0 version; later major changes to the app increment the major number. The build number is a timestamp (`yyyyMMddHHmm`), as in Pull State.
 
@@ -59,7 +59,7 @@ Out of scope for now: iCloud sync, Apple Watch, sharing, any account system, and
 2. The repository is pulled on the Mac mini (CoffeeDev), driven headless over SSH. The first Mac session's job is to make the project build and the tests pass with `xcodebuild`.
 3. Builds go to TestFlight and are tested on the phone, later the iPad.
 
-**Xcode project.** Use file-system-synchronised groups (Xcode 16 and later) so that adding a Swift file never requires editing `project.pbxproj`. The project has an app target `Solitus` and a test target `SolitusTests`. The App Group entitlement is present from the first commit.
+**Xcode project.** Use file-system-synchronised groups (Xcode 16 and later) so that adding a Swift file never requires editing `project.pbxproj`. The project has an app target `Solitus`, a unit-test target `SolitusTests` and a UI-test target `SolitusUITests`. The App Group entitlement is present from the first commit.
 
 ## 4. Architecture
 
@@ -76,31 +76,38 @@ Services are plain types with no SwiftUI imports, so every rule in section 6 can
 
 ```
 Solitus/
-  App/                SolitusApp.swift, RootView.swift, AppSection.swift, ModelContainerFactory.swift
+  App/                SolitusApp, RootView, AppSection, ModelContainerFactory,
+                      AppNow (today and the minute, in the environment), AppRouter (the open sheet),
+                      DebugLaunch (launch arguments for checking screens; debug builds only)
   Core/               DayKey.swift, PeriodCalculator.swift, AppSettings.swift, Clock.swift (AppClock)
   DesignSystem/
     Theme/            SLTheme.swift, SLPalette.swift, SLTypography.swift, SLMetrics.swift
     Surface/          SLSurface.swift, SLSurfaceStyle.swift, FlatSurface.swift
     Fill/             SLFillEffect.swift, SweepFill.swift
     Motion/           SLMotionProvider.swift, StaticMotion.swift
-    Components/       SLBackground, SLTabBar, SLSegmented, SLStepper, SLToggle, SLSheet, SLHeatCell, SLStatCard
+    Components/       SLBackground, SLTabBar, SLScreen (page frame, title, empty state),
+                      SLControls (SLSegmented, SLStepper, SLToggle, SLChip, SLTextField, SLGroup, SLNote),
+                      SLSheet, SLHoldGesture, SLHeatCell (and SLYearTile),
+                      SLStatCard (and SLFillCard, SLButton, SLSwatch)
   Features/
     Tasks/
       Models/         TaskItem.swift, Entry.swift, Slot.swift, TasksSchema.swift,
                       TaskEnums.swift, TaskRules.swift (value snapshots for the services)
       Services/       EntryStore, ScoreCalculator, RunningAverage, StreakCalculator, HeatCalculator,
-                      PriorityRanker, TrendAggregator, ReminderScheduler, CSVExporter,
-                      SampleData (debug only)
+                      PriorityRanker, TrendAggregator, ReminderScheduler, ReminderCoordinator, CSVExporter,
+                      TaskCalc (the calculators built together, and a task's snapshot),
+                      CardStatus (the words and numbers on a card), SampleData
       Track/          TrackView, TaskCard
       Detail/         TaskDetailView, HeatCalendar, YearHeatView
-      Edit/           TaskEditSheet
-      Trends/         TrendsView, TrendGraph, TrendSheet
+      Edit/           TaskEditSheet, TaskDraft (the form's rules, as a value), SymbolCatalog
+      Trends/         TrendsView, TrendGraph, TrendSheet, TrendData (the graph's lines)
       List/           TaskListView
       Settings/       SettingsView
   Resources/          Assets.xcassets
-SolitusTests/
-docs/                 DESIGN.md
-design/               mockups (reference only)
+SolitusTests/         unit tests
+SolitusUITests/       UI tests
+docs/                 DESIGN.md, BUILD_NOTES.md
+design/               mockups (reference only), icon (the script that draws the app icon)
 ```
 
 ### 4.3 Extension points for styles and effects
@@ -110,7 +117,7 @@ These four seams exist from the first build, even though each has one implementa
 | Seam | Purpose | First implementation | Planned |
 |---|---|---|---|
 | `SLTheme` | Colour tokens, radii, type sizes, glass tint. A value passed through the SwiftUI environment. | Dark neutral theme (section 9.1) | Light theme, user tints, per-task colours |
-| `SLSurfaceStyle` | Draws a surface for a given role: `card`, `panel`, `statCard`, `row`, `well`, `bar`, `sheet`, `heatCell`. Receives the role, corner radius, and the current motion tilt. | `flat` | `glass3D`, then `wood`, `leaves` and others |
+| `SLSurfaceStyle` | Draws a surface for a given role: `card`, `panel`, `statCard`, `row`, `well`, `bar`, `sheet`, `heatCell`, `raised`. Receives the role, corner radius, and the current motion tilt. | `flat` | `glass3D`, then `wood`, `leaves` and others |
 | `SLFillEffect` | Draws progress inside a surface, given a fraction from 0 to 1, the number of sections, and an animation phase. | `sweep` (section 8.2) | `water`, `fire`, `crumble`, driven by physics and device tilt |
 | `SLMotionProvider` | Publishes a tilt vector with x and y between -1 and 1. | `static` (always zero) | `device` (Core Motion) |
 
@@ -120,7 +127,8 @@ Rules:
 - Views never read colours except from `SLTheme`.
 - Prefer an enum of styles with one renderer file per case over protocol existentials. Adding a style should mean adding one enum case and one file.
 - A card's outline is a parameter (`SLCardShape`, rectangle only for now), so circles and other shapes can be added later.
-- Sheets do not inherit custom environment values. Every sheet must be given the theme, surface style and motion provider explicitly. (This was a real bug source in Pull State.)
+- System sheets do not inherit custom environment values (a real bug source in Pull State). Every pop-up page therefore uses `SLSheet` (`.slSheet(item:)`), which is drawn inside the presenting view rather than by the system and sets the theme, surface style and motion tilt on its content itself. If a system sheet is ever used, it must be given all three explicitly.
+- A long press on anything inside a scroll view uses `SLHoldGesture`. SwiftUI's own long-press gesture can swallow the drag that should scroll.
 
 ### 4.4 App shell
 
@@ -329,7 +337,7 @@ Mockups are in `design/mockups/` (reference only; see that folder's README). Siz
 ### 7.1 Navigation
 
 - A floating pill tab bar at the bottom: **Track**, **Trends**, **Tasks**, **Settings** (gear icon). Content scrolls underneath it.
-- Track to Task details is a push.
+- Track to Task details is a push, inside a `NavigationStack` (Trends has its own, for its task rows). The details page uses the system navigation bar with no background: the system back button on the left and Edit on the right. The tab bar stays visible.
 - Anything that pops up over a screen is a **sheet** (section 7.6): Add/Edit task and the trend graph detail.
 
 ### 7.2 Track
@@ -417,13 +425,15 @@ Lines must be distinguishable without relying on colour alone: Total is white an
 
 All pop-up pages share one presentation, `SLSheet`:
 
+- Drawn by the root view over everything, including the tab bar. It is not a system sheet (section 4.3).
 - Slides up from the bottom over the current screen.
 - Leaves about 64 points of the screen behind it visible at the top, dimmed by roughly 50% black.
 - The sheet itself is transparent with a strong blur of whatever is behind it, rounded top corners (28), and a small grabber.
-- Dismissed by dragging down or by tapping the visible strip at the top.
+- Dismissed by dragging the grabber down or by tapping the visible strip at the top. (Only the grabber drags, so that the sheet's own content can scroll.)
+- On a wide screen the sheet is at most 640 points wide and centred.
 - With Reduce Transparency on, the sheet becomes an opaque dark surface.
 
-**Trend sheet.** Opened from the Trends graph. It contains the 30/90 switch, a taller version of the same scrolling graph, and a **Lines** list. Each line has a sample of its stroke, a name, its current value and a switch. Total, Best and Worst are present by default. **Add a task** opens a picker to add any task's own line. Changes here affect this sheet only and are remembered between openings; the graph on the Trends page always shows the three default lines. Every added line needs its own colour and dash pattern.
+**Trend sheet.** Opened from the Trends graph. It contains the 30/90 switch, a taller version of the same scrolling graph, and a **Lines** list. Each line has a sample of its stroke, a name, its current value and a switch. Total, Best and Worst are present by default. **Add a task** opens a picker to add any task's own line. Changes here affect this sheet only and are remembered between openings (in `UserDefaults`, key `trendSheetLines`; the privacy manifest declares this); the graph on the Trends page always shows the three default lines. Every added line needs its own colour and dash pattern.
 
 ### 7.7 Tasks **(not mocked)**
 
@@ -641,3 +651,63 @@ The first Windows session should complete phases 0 and 1 and may begin phase 2. 
 - Widgets: a today list, a single-task card, a heat map, a trend.
 - Tip jar, added after release as in Pull State.
 - Finances area.
+
+## 14. As built (26.0.3)
+
+Phases 2 to 7 were built in one pass on 2026-11-20. Where the text above left something open, this is what the code does. None of these answers an open question in section 12; each uses the stated default.
+
+**Track and the card**
+
+- The grid uses as many columns as fit cards at least 160 points wide: two on a phone, more on an iPad.
+- The quick stat cycles only through stats the task has. No-limit tasks have no averages; a no-limit Avoid task has no streak. A saved stat that no longer applies falls back to progress.
+- An "at least" task past its target shows "Done" with the count in the caption ("9 today").
+- The hold: the finger rests for 0.12 seconds, then the fill travels for the rest of the 0.6 seconds and the entry is saved when it arrives. Moving the finger more than 18 points turns the hold into a scroll. Lifting after a hold is not also a tap.
+- For an Avoid card the hold sweeps the red fill across the faint one. For a no-limit card the fill sweeps across and lands empty with the count one higher.
+- Track reorders with an animation when an entry changes and when the minute changes.
+
+**Task details**
+
+- No-limit tasks show totals for the last 30 and 90 days in place of the averages.
+- A task with no streak (no-limit Avoid) shows dashes in the streak row.
+- The heat calendar cannot move past the current month or year. On a wide screen its grid is at most 440 points wide.
+
+**Add / Edit**
+
+- The icon picker is a grid that opens inside the Name group, from a fixed list of 48 symbols (`SymbolCatalog`).
+- Each repetition's chip starts as "Add". Tapping it gives it a default and opens its picker under the chips: a time wheel for daily tasks, seven weekday chips for weekly, a day stepper for monthly. "Clear this one" empties it again. Changing how often a task repeats clears the chips.
+- Targets run from 1 to 99 (0 to 99 for Avoid). The streak gap runs from none to 14.
+- "Move to the top once logged" sits in its own group, "When logged". Archive and Delete sit in a group called "Manage".
+- Save is disabled until the task has a name.
+
+**Tasks**
+
+- Each row has a handle on the right; dragging the handle reorders. VoiceOver has "Move up" and "Move down" on the handle.
+- Archived rows have Restore and an edit button.
+
+**Trends**
+
+- The graph reaches back to the earliest scored task, at most two years.
+- The Most completed and Most neglected lists rank by the 30-day average whichever window the graph shows.
+- Top streaks is hidden when streaks are not emphasised.
+
+**Settings**
+
+- Style is a one-option control (Flat) until the 3D glass style exists. The glass tint is chosen from five presets.
+- The Appearance choice (system, dark, light) is left out until a light theme exists (12.5).
+- **Temporary:** while there are no tasks, a "Testing" group offers "Load sample tasks", which installs the ten mockup tasks with four months of invented history. It exists so TestFlight builds can be tried with data. Remove it before the public release.
+
+**System settings (9.5)**
+
+- Reduce Motion or the app's own Motion and effects switch: no fill travel and no pop; the sheet fades instead of sliding.
+- Reduce Transparency: every surface gets an opaque dark base and nothing is blurred.
+- Increase Contrast: borders at white 30%, secondary text becomes primary.
+- Only the tab bar and the sheet blur what is behind them. The other surfaces do not, pending a look on a device.
+
+**Empty and first-run states (12.11) and iPad (12.12)**
+
+- Not designed, so the plainest form was built: an icon, a line and a sentence in a panel, with an "Add a task" button on Track. Marked `// OPEN: 12.11`.
+- iPad uses the phone layout with more grid columns; other pages are at most 720 points wide and centred, and the tab bar at most 480.
+
+**App icon**
+
+Four glass squares in red, yellow, green and blue on the dark ground, covering half the icon's area. Drawn by `design/icon/make_icon.swift`.

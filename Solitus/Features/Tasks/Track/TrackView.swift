@@ -30,6 +30,8 @@ struct TrackView: View {
         NavigationStack(path: $path) {
             SLScreen(maxWidth: nil) {
                 header
+                // OPEN: 12.3 filters are wanted but their placement is
+                // undecided, so there are none.
                 if tasks.isEmpty {
                     SLEmptyState(
                         symbol: "checkmark.circle",
@@ -39,6 +41,8 @@ struct TrackView: View {
                         action: { router.sheet = .addTask }
                     )
                 }
+                // OPEN: 12.12 the iPad layout is not designed. The grid simply
+                // takes as many columns as fit.
                 LazyVGrid(
                     columns: [GridItem(.adaptive(minimum: metrics.cardMinWidth), spacing: metrics.gridColumnGap)],
                     spacing: metrics.gridRowGap
