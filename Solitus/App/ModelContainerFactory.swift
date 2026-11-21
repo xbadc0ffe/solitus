@@ -33,14 +33,19 @@ enum ModelContainerFactory {
 
         let schema = self.schema
 
-        let grouped = ModelConfiguration(
-            schema: schema,
-            isStoredInMemoryOnly: false,
-            groupContainer: .identifier(appGroupID),
-            cloudKitDatabase: .none
-        )
-        if let container = try? makeContainer(schema: schema, configuration: grouped) {
-            return (container, true)
+        // Ask the file manager first. On a device, building a
+        // ModelConfiguration for a group the app is not entitled to does not
+        // throw; it stops the process.
+        if FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) != nil {
+            let grouped = ModelConfiguration(
+                schema: schema,
+                isStoredInMemoryOnly: false,
+                groupContainer: .identifier(appGroupID),
+                cloudKitDatabase: .none
+            )
+            if let container = try? makeContainer(schema: schema, configuration: grouped) {
+                return (container, true)
+            }
         }
 
         let local = ModelConfiguration(

@@ -47,7 +47,7 @@ xcrun simctl io booted screenshot track.png
 - **Signing and the App Group on a device.** Every build so far was unsigned or for the simulator. Before the first TestFlight build:
   - The App ID `com.badc0ffe.solitus` and the App Group `group.com.badc0ffe.solitus` are registered and linked (2026-11-20). A signed device build with `-allowProvisioningUpdates` and the API key succeeds and carries the group entitlement, so `ship Solitus` should work; a full `ship` run has not been done yet.
   - An API key cannot create an App Group or attach one to an App ID. If either is missing, `xcodebuild` reports "Authentication failed: Make sure a bearer token was provided". Both steps are done by hand in the developer portal.
-  - **26.0.1 (202611201542) was uploaded to TestFlight on 2026-11-20 without the App Group entitlement**, before the group existed. That build keeps its store in the app's own container (the fallback in `ModelContainerFactory`). Builds from 26.0.2 on use the group container and start with an empty store; nothing in the app can create data yet, so nothing is lost.
+  - **26.0.1 (202611201542) crashes at launch on a device.** It was uploaded without the App Group entitlement, before the group existed. On a device, `ModelConfiguration(groupContainer: .identifier(...))` for a group the app is not entitled to stops the process instead of throwing, so the fallback in `ModelContainerFactory` never ran. The simulator does not enforce entitlements and did not show this. Fixed in 26.0.2: the factory asks `FileManager` for the group container first, and the build carries the entitlement.
   - The App Group container has only been exercised in the simulator, not on a device.
   - The app icon is a placeholder (a three-section card, two sections filled) drawn by script so the first upload is accepted. Replace it with a designed icon.
   - The build number in the project is the placeholder `202611200000`; `ship` overrides it with a real timestamp.
@@ -61,7 +61,7 @@ xcrun simctl io booted screenshot track.png
 
 ## 4. What exists
 
-**Xcode project.** `Solitus.xcodeproj`, made by copying Pull State's `project.pbxproj` and shared scheme and renaming. Two targets, file-system-synchronised groups for the `Solitus` and `SolitusTests` folders, bundle ID `com.badc0ffe.solitus`, version 26.0.1, iPhone and iPad, Swift 6 with MainActor default isolation, `SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY` on (a file must import every module whose members it uses), team `ZWS3TP3W3Z`. `Solitus/Solitus.entitlements` holds the App Group. `Solitus/PrivacyInfo.xcprivacy` declares no tracking and no collected data.
+**Xcode project.** `Solitus.xcodeproj`, made by copying Pull State's `project.pbxproj` and shared scheme and renaming. Two targets, file-system-synchronised groups for the `Solitus` and `SolitusTests` folders, bundle ID `com.badc0ffe.solitus`, version 26.0.2, iPhone and iPad, Swift 6 with MainActor default isolation, `SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY` on (a file must import every module whose members it uses), team `ZWS3TP3W3Z`. `Solitus/Solitus.entitlements` holds the App Group. `Solitus/PrivacyInfo.xcprivacy` declares no tracking and no collected data.
 
 **Core** (`Solitus/Core`)
 

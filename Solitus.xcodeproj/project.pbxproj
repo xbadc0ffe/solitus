@@ -338,7 +338,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
-				MARKETING_VERSION = 26.0.1;
+				MARKETING_VERSION = 26.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -378,7 +378,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
-				MARKETING_VERSION = 26.0.1;
+				MARKETING_VERSION = 26.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -403,7 +403,7 @@
 				DEVELOPMENT_TEAM = ZWS3TP3W3Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 26.0.1;
+				MARKETING_VERSION = 26.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -427,7 +427,7 @@
 				DEVELOPMENT_TEAM = ZWS3TP3W3Z;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 26.0.1;
+				MARKETING_VERSION = 26.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.badc0ffe.solitus.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
