@@ -37,6 +37,12 @@ struct SLPalette: Equatable {
     let alertFillTop: Color
     let alertFillBottom: Color
     let alertEdge: Color
+    /// Text for destructive actions such as Delete.
+    let alertText: Color
+    /// The outline of today's heat cell and of the current month's tile.
+    let todayOutline: Color
+    /// The outline of a future day's empty heat cell.
+    let futureOutline: Color
 
     // Seams
     let seamDark: Color
@@ -103,6 +109,9 @@ extension SLPalette {
             alertFillTop: alert.opacity(0.34),
             alertFillBottom: alert.opacity(0.16),
             alertEdge: Color(red: 240 / 255, green: 128 / 255, blue: 108 / 255).opacity(0.65),
+            alertText: Color(red: 244 / 255, green: 140 / 255, blue: 120 / 255),
+            todayOutline: white,
+            futureOutline: white.opacity(increasedContrast ? 0.30 : 0.10),
             seamDark: black.opacity(0.50),
             seamLight: white.opacity(0.36),
             seamGlow: white.opacity(0.08),

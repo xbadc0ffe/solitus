@@ -45,7 +45,13 @@ struct TrackView: View {
                 }
                 .animation(.easeInOut(duration: 0.35), value: items.map(\.id))
             }
+            .navigationTitle("Track")
             .toolbar(.hidden, for: .navigationBar)
+            .task {
+                if DebugLaunch.openFirstTask, path.isEmpty, let first = orderedItems(settings: settingsQuery.first).first {
+                    path.append(first.task)
+                }
+            }
             .navigationDestination(for: TaskItem.self) { task in
                 TaskDetailView(task: task)
             }

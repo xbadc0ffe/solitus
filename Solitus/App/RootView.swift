@@ -14,7 +14,7 @@ struct RootView: View {
     @Environment(\.colorSchemeContrast) private var contrast
     @Query private var settingsQuery: [AppSettings]
 
-    @State private var selection: AppSection = .track
+    @State private var selection: AppSection = DebugLaunch.startTab ?? .track
     @State private var motion = SLMotionProvider(source: .still)
     @State private var router = AppRouter()
     @State private var now = AppNow(clock: SystemClock())

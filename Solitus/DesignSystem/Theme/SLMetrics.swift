@@ -21,6 +21,9 @@ struct SLMetrics: Equatable {
     var pageMaxWidth: CGFloat = 720
     var trackerCardHeight: CGFloat = 112
     var fillCardHeight: CGFloat = 58
+    var statCardHeight: CGFloat = 72
+    var yearTileHeight: CGFloat = 80
+    var heatCellGap: CGFloat = 7
     var rowHeight: CGFloat = 56
 
     // Chrome

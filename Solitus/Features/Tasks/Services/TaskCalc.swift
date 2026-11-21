@@ -46,4 +46,14 @@ nonisolated struct TaskCalc: Sendable {
             streak: streaks.summary(for: history, today: today)
         )
     }
+
+    /// Everything logged in the `days` days ending today. No-limit tasks
+    /// show totals where scored tasks show averages (DESIGN.md 6.3).
+    func total(_ history: TaskHistory, days: Int, today: DayKey) -> Int {
+        var sum = 0
+        for offset in 0..<max(days, 0) {
+            sum += history.counts[today.adding(-offset)] ?? 0
+        }
+        return sum
+    }
 }

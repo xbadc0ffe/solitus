@@ -3,7 +3,7 @@ import SwiftUI
 /// The flat style (DESIGN.md 9.1): a faint tinted gradient, a 1-point
 /// border, a top inner highlight and one soft drop shadow. It ignores tilt.
 ///
-/// Only the sheet blurs what is behind it. The mockup also blurs behind
+/// Only the sheet and the tab bar blur what is behind them. The mockup also blurs behind
 /// every other surface; that is left out until the look can be judged on a
 /// device. With Reduce Transparency on, every surface is an opaque dark
 /// panel and nothing is blurred (DESIGN.md 9.5).
@@ -32,7 +32,8 @@ struct FlatSurface: View {
             }
             if reduceTransparency {
                 outline.fill(palette.ground)
-            } else if role == .sheet {
+            } else if role == .sheet || role == .bar {
+                // Content scrolls under the tab bar and sits behind a sheet.
                 outline.fill(.ultraThinMaterial)
             }
             outline.fill(fill(palette))
