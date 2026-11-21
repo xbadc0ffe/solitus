@@ -8,6 +8,7 @@ import Foundation
 ///     -openFirstTask            push the first Track card's details
 ///     -heatYearView             heat calendars start in the year view
 ///     -openSheet add            present a sheet (add, edit, trend)
+///     -inMemoryStore            start with an empty store that is not kept (UI tests)
 enum DebugLaunch {
     #if DEBUG
     private static let arguments = ProcessInfo.processInfo.arguments
@@ -21,10 +22,12 @@ enum DebugLaunch {
     static let openFirstTask = arguments.contains("-openFirstTask")
     static let heatYearView = arguments.contains("-heatYearView")
     static let openSheet: String? = value(after: "-openSheet")
+    static let inMemoryStore = arguments.contains("-inMemoryStore")
     #else
     static let startTab: AppSection? = nil
     static let openFirstTask = false
     static let heatYearView = false
     static let openSheet: String? = nil
+    static let inMemoryStore = false
     #endif
 }

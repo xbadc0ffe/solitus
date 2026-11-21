@@ -5,7 +5,8 @@ import SwiftUI
 /// grows from the left edge.
 ///
 /// Gestures (DESIGN.md 8.1): tap cycles the quick stat, double tap opens the
-/// details, a long press logs one. The Task details screen reuses the card
+/// details, a long press logs one. The long press is `SLHoldGesture`, which
+/// does not get in the way of scrolling. The Task details screen reuses the card
 /// as its tracker (`style: .tracker`), where only the long press applies.
 struct TaskCard: View {
     enum Style {
@@ -33,6 +34,10 @@ struct TaskCard: View {
     @State private var popCount = 0
     @State private var successCount = 0
     @State private var softCount = 0
+    /// Counts down the hold; cancelled if the finger lifts early.
+    @State private var holdTimer: Task<Void, Never>?
+    /// True from the moment a hold lands until just after the finger lifts.
+    @State private var justHeld = false
 
     private var count: Int { snapshot.periodCount }
 
@@ -121,23 +126,25 @@ struct TaskCard: View {
                 SpringKeyframe(1.0, duration: 0.28)
             }
         }
+        // OPEN: 12.7 recognising the double tap delays the single tap
+        // slightly. Judge it on a device.
         .onTapGesture(count: 2) {
-            if style == .track { onOpen() }
+            if style == .track && !justHeld { onOpen() }
         }
         .onTapGesture {
-            if style == .track { cycleStat() }
+            if style == .track && !justHeld { cycleStat() }
         }
-        .onLongPressGesture(minimumDuration: SweepFill.holdDuration, maximumDistance: 24) {
-            commitHold()
-        } onPressingChanged: { pressing in
-            holdChanged(pressing: pressing)
-        }
+        .gesture(SLHoldGesture(onBegan: beginHold, onEnded: endHold))
         .sensoryFeedback(.success, trigger: successCount)
         .sensoryFeedback(.impact(flexibility: .soft), trigger: softCount)
         .animation(.easeInOut(duration: 0.2), value: status)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(task.name), \(CardStatusFormatter.periodName(rules.period)), \(status.value) \(status.caption)")
-        .accessibilityAction(named: "Log one") { commitHold() }
+        .accessibilityIdentifier("card-" + task.name)
+        .accessibilityAction(named: "Log one") {
+            commitHold()
+            justHeld = false
+        }
         .accessibilityAction(named: "Open details") { onOpen() }
     }
 
@@ -173,22 +180,48 @@ struct TaskCard: View {
     }
 
     /// While the finger is down the fill advances toward the next step,
-    /// fast at first and easing out. Lifting early drains it back.
-    private func holdChanged(pressing: Bool) {
-        if pressing {
-            guard canLog, animatesHold else { return }
-            withAnimation(.easeOut(duration: SweepFill.holdDuration)) {
+    /// fast at first and easing out. When it arrives the entry is saved.
+    /// Lifting early drains the fill back and saves nothing.
+    private func beginHold() {
+        holdTimer?.cancel()
+        justHeld = false
+        // The finger has already rested for `restTime`; the whole hold
+        // takes `holdDuration`.
+        let travelTime = max(SweepFill.holdDuration - SLHoldGesture.restTime, 0.1)
+        if canLog && animatesHold {
+            withAnimation(.easeOut(duration: travelTime)) {
                 phase = 1
             }
-        } else if phase != 0 {
+        }
+        holdTimer = Task {
+            try? await Task.sleep(for: .seconds(travelTime))
+            if !Task.isCancelled {
+                commitHold()
+            }
+        }
+    }
+
+    private func endHold() {
+        holdTimer?.cancel()
+        holdTimer = nil
+        if phase != 0 {
             withAnimation(.easeOut(duration: 0.25)) {
                 phase = 0
+            }
+        }
+        if justHeld {
+            // Lifting the finger after a hold is not a tap.
+            Task {
+                try? await Task.sleep(for: .seconds(0.35))
+                justHeld = false
             }
         }
     }
 
     /// The hold arrived: save the entry, pop, and play the haptic.
     private func commitHold() {
+        holdTimer = nil
+        justHeld = true
         let store = EntryStore(context: context, clock: clock, weekStart: settings.weekStart)
         let result = try? store.logOne(for: task)
 

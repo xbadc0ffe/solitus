@@ -8,7 +8,11 @@ struct SolitusApp: App {
     private let container: ModelContainer
 
     init() {
-        container = ModelContainerFactory.makeAppContainer().container
+        if DebugLaunch.inMemoryStore, let scratch = try? ModelContainerFactory.makeInMemoryContainer() {
+            container = scratch
+        } else {
+            container = ModelContainerFactory.makeAppContainer().container
+        }
     }
 
     var body: some Scene {
