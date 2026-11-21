@@ -52,3 +52,41 @@ struct SLScreenTitle: View {
             .accessibilityAddTraits(.isHeader)
     }
 }
+
+/// What a screen shows when it has nothing to show yet.
+// OPEN: 12.11 empty and first-run states are not designed; this is a plain
+// icon, a line and a sentence, with an optional button.
+struct SLEmptyState: View {
+    let symbol: String
+    let title: String
+    let message: String
+    var actionTitle: String?
+    var action: () -> Void = {}
+
+    @Environment(\.slTheme) private var theme
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 30, weight: .regular))
+                .foregroundStyle(theme.palette.textFaint)
+                .accessibilityHidden(true)
+            Text(title)
+                .font(theme.font(.header))
+                .foregroundStyle(theme.palette.textPrimary)
+            Text(message)
+                .font(theme.font(.body))
+                .foregroundStyle(theme.palette.textSecondary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            if let actionTitle {
+                SLButton(title: actionTitle, symbol: "plus", action: action)
+                    .padding(.top, 6)
+            }
+        }
+        .padding(.vertical, 28)
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity)
+        .background(SLSurface(role: .panel))
+    }
+}

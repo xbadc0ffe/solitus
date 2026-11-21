@@ -34,6 +34,7 @@ struct RootView: View {
     }
 
     var body: some View {
+        @Bindable var router = router
         ZStack(alignment: .bottom) {
             SLBackground()
 
@@ -41,6 +42,16 @@ struct RootView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
             SLTabBar(sections: sections, selection: $selection)
+        }
+        .slSheet(item: $router.sheet) { route in
+            switch route {
+            case .addTask:
+                TaskEditSheet(task: nil, calendar: clock.calendar)
+            case .editTask(let task):
+                TaskEditSheet(task: task, calendar: clock.calendar)
+            case .trendGraph:
+                EmptyView()
+            }
         }
         .slDesign(
             theme: theme,
@@ -67,6 +78,17 @@ struct RootView: View {
             #if DEBUG
             SampleData.installIfRequested(context: context)
             #endif
+            switch DebugLaunch.openSheet {
+            case "add": router.sheet = .addTask
+            case "edit":
+                var first = FetchDescriptor<TaskItem>(sortBy: [SortDescriptor(\.sortOrder)])
+                first.fetchLimit = 1
+                if let task = try? context.fetch(first).first {
+                    router.sheet = .editTask(task)
+                }
+            case "trend": router.sheet = .trendGraph
+            default: break
+            }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
