@@ -12,6 +12,7 @@ struct RootView: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.colorSchemeContrast) private var contrast
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Query private var settingsQuery: [AppSettings]
 
     @State private var selection: AppSection = DebugLaunch.startTab ?? .track
@@ -75,9 +76,8 @@ struct RootView: View {
         .preferredColorScheme(.dark)
         .task {
             AppSettings.ensureExists(in: context)
-            #if DEBUG
             SampleData.installIfRequested(context: context)
-            #endif
+            rescheduleReminders()
             switch DebugLaunch.openSheet {
             case "add": router.sheet = .addTask
             case "edit":
@@ -93,11 +93,36 @@ struct RootView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 refreshNow()
-                motion.start()
-            } else {
-                motion.stop()
+                rescheduleReminders()
             }
+            updateMotion()
         }
+        // Reminders are rebuilt whenever a task is saved or an entry changes
+        // (DESIGN.md section 10).
+        .onChange(of: router.changeCount) { rescheduleReminders() }
+        .onChange(of: reduceMotion) { updateMotion() }
+        .onChange(of: settings?.effectsEnabled) { updateMotion() }
+        .onReceive(NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)) { _ in
+            updateMotion()
+        }
+    }
+
+    /// Motion runs only in the foreground, and never with Reduce Motion,
+    /// Low Power Mode or the app's own effects switch off (DESIGN.md 9.5).
+    private func updateMotion() {
+        let allowed = scenePhase == .active
+            && !reduceMotion
+            && !ProcessInfo.processInfo.isLowPowerModeEnabled
+            && (settings?.effectsEnabled ?? true)
+        if allowed {
+            motion.start()
+        } else {
+            motion.stop()
+        }
+    }
+
+    private func rescheduleReminders() {
+        ReminderCoordinator.reschedule(context: context, clock: clock, weekStart: settings?.weekStart ?? 1)
     }
 
     private func refreshNow() {

@@ -98,24 +98,64 @@ struct SLButton: View {
     var fillsWidth = false
     let action: () -> Void
 
+    var body: some View {
+        Button(action: action) {
+            SLButtonLabel(title: title, symbol: symbol, tone: tone, fillsWidth: fillsWidth)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+/// The look of an `SLButton`, for controls that are not plain buttons
+/// (a share link, a link to a web page).
+struct SLButtonLabel: View {
+    let title: String
+    var symbol: String?
+    var tone: SLButton.Tone = .normal
+    var fillsWidth = false
+
     @Environment(\.slTheme) private var theme
     @Environment(\.isEnabled) private var isEnabled
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                if let symbol {
-                    Image(systemName: symbol).font(.system(size: 13, weight: .semibold))
-                }
-                Text(title).font(theme.font(.body)).lineLimit(1)
+        HStack(spacing: 6) {
+            if let symbol {
+                Image(systemName: symbol).font(.system(size: 13, weight: .semibold))
             }
-            .foregroundStyle(tone == .destructive ? theme.palette.alertText : theme.palette.textPrimary)
-            .padding(.horizontal, 16)
-            .frame(maxWidth: fillsWidth ? .infinity : nil, minHeight: theme.metrics.minTapTarget)
-            .background(SLSurface(role: .raised, cornerRadius: theme.metrics.wellRadius))
-            .opacity(isEnabled ? 1 : 0.45)
-            .contentShape(Rectangle())
+            Text(title).font(theme.font(.body)).lineLimit(1)
+        }
+        .foregroundStyle(tone == .destructive ? theme.palette.alertText : theme.palette.textPrimary)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: fillsWidth ? .infinity : nil, minHeight: theme.metrics.minTapTarget)
+        .background(SLSurface(role: .raised, cornerRadius: theme.metrics.wellRadius))
+        .opacity(isEnabled ? 1 : 0.45)
+        .contentShape(Rectangle())
+    }
+}
+
+/// A round colour swatch, for choosing the glass tint.
+struct SLSwatch: View {
+    let hex: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    @Environment(\.slTheme) private var theme
+
+    var body: some View {
+        Button(action: action) {
+            Circle()
+                .fill(Color(slHexString: hex) ?? theme.palette.tint)
+                .frame(width: 30, height: 30)
+                .overlay {
+                    if isSelected {
+                        Circle().strokeBorder(theme.palette.ground, lineWidth: 3)
+                        Circle().strokeBorder(theme.palette.textPrimary, lineWidth: 1.5).padding(-3)
+                    }
+                }
+                .frame(width: theme.metrics.minTapTarget, height: theme.metrics.minTapTarget)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? [.isSelected] : [])
     }
 }

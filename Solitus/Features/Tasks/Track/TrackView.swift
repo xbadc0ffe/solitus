@@ -7,6 +7,7 @@ struct TrackView: View {
     @Environment(\.slTheme) private var theme
     @Environment(\.appNow) private var now
     @Environment(\.appClock) private var clock
+    @Environment(AppRouter.self) private var router
 
     @Query(filter: #Predicate<TaskItem> { !$0.isArchived }, sort: \TaskItem.sortOrder)
     private var tasks: [TaskItem]
@@ -29,6 +30,15 @@ struct TrackView: View {
         NavigationStack(path: $path) {
             SLScreen(maxWidth: nil) {
                 header
+                if tasks.isEmpty {
+                    SLEmptyState(
+                        symbol: "checkmark.circle",
+                        title: "Nothing to track yet",
+                        message: "Add a task, then hold its card to mark it done.",
+                        actionTitle: "Add a task",
+                        action: { router.sheet = .addTask }
+                    )
+                }
                 LazyVGrid(
                     columns: [GridItem(.adaptive(minimum: metrics.cardMinWidth), spacing: metrics.gridColumnGap)],
                     spacing: metrics.gridRowGap

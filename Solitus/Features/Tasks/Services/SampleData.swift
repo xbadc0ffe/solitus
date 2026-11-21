@@ -1,13 +1,14 @@
-#if DEBUG
 import Foundation
 import SwiftData
 
-/// Debug-only sample tasks matching the ones drawn in the mockups
+/// Sample tasks matching the ones drawn in the mockups
 /// (`design/mockups/Main.dc.html`), with about four months of invented
 /// history so averages, streaks and heat have something to show.
 ///
-/// Installed only when the app is launched with the `-seedSampleData`
-/// argument and the store has no tasks. Never compiled into release builds.
+/// Installed when the app is launched with the `-seedSampleData` argument
+/// and the store has no tasks, or from the temporary "Load sample tasks"
+/// button in Settings, which exists so TestFlight builds can be tried with
+/// history. Remove that button before the public release.
 enum SampleData {
     static let launchArgument = "-seedSampleData"
     static let historyDays = 120
@@ -115,4 +116,3 @@ enum SampleData {
         try? context.save()
     }
 }
-#endif
