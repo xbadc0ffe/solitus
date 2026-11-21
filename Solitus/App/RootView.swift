@@ -50,7 +50,7 @@ struct RootView: View {
             case .editTask(let task):
                 TaskEditSheet(task: task, calendar: clock.calendar)
             case .trendGraph:
-                EmptyView()
+                TrendSheet()
             }
         }
         .slDesign(

@@ -29,6 +29,8 @@ struct HeatCalendar: View {
         _month = State(initialValue: today.month)
     }
 
+    private static let maxGridWidth: CGFloat = 440
+
     /// Month and weekday names in the user's language.
     private static let symbols: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
@@ -39,15 +41,20 @@ struct HeatCalendar: View {
     var body: some View {
         VStack(spacing: 8) {
             titleBar
-            switch mode {
-            case .month: monthView
-            case .year:
-                YearHeatView(heat: heat, today: today, weekStart: weekStart, year: year) { chosen in
-                    month = chosen
-                    withAnimation(.easeInOut(duration: 0.2)) { mode = .month }
+            Group {
+                switch mode {
+                case .month: monthView
+                case .year:
+                    YearHeatView(heat: heat, today: today, weekStart: weekStart, year: year) { chosen in
+                        month = chosen
+                        withAnimation(.easeInOut(duration: 0.2)) { mode = .month }
+                    }
                 }
             }
+            // On a wide screen the cells stay a comfortable size.
+            .frame(maxWidth: HeatCalendar.maxGridWidth)
         }
+        .frame(maxWidth: .infinity)
         .padding(.horizontal, theme.metrics.innerPadding)
         .padding(.top, 6)
         .padding(.bottom, theme.metrics.innerPadding)
